@@ -8,6 +8,10 @@ tmp/*
 .project
 .buildpath
 .settings
+.classpath
+.metadata
+RemoteSystemsTempFiles
+src/#*
 
 # vim temporary files
 *.swp
