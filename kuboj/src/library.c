@@ -7,5 +7,6 @@ int writeint(int a) {
 }
 
 int writestr(char *str) {
+    printf("%s\n", str);
     return 0;
 }
