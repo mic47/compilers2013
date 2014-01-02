@@ -1,0 +1,66 @@
+function int[] bfs(v, g, visited) {
+  if (visited[v] == 1) {
+    return visited;
+  }
+  visited[v] = 1;
+  var int i;
+  i = 0;
+  var int j;
+  j = 0;
+  for (i <= n; i += 1) {
+    for (j <= n; j += 1) {
+      if (g[i][j] == 1) {        
+        visited = bfs(j, g, visited);
+      }
+    }
+  }  
+  return visited;
+}
+
+function int main() {
+  var int n;
+  n = readint();
+  var int m;
+  m = readint();
+  var int[][] g;
+  g = int[n][n];
+
+  var int j;
+  var int k;
+  var int i;
+  i = 0;
+  for (i < m; i += 1) {
+    j = readint();
+    k = readint();
+    g[j][k] = 1;
+    g[k][j] = 1;
+  }
+
+  var int[] visited;
+  visited = int[n];
+  i = 0;
+  for (i <= n; i += 1) {
+    visited[i] = 0;
+  }
+
+  var int[] visited2;
+  visited[0] = 1;
+  visited2 = bfs(0, g, visited);
+
+  var int visited_all;
+  visited_all = 1;
+  i = 0;
+  for (i <= n; i += 1) {
+    if (visited2[i] == 0) {
+      visited_all = 0;
+    }
+  }
+
+  if (visited_all == 1) {
+    writestr("ANO");
+    return 0;
+  } else {
+    writestr("NIE");
+    return 0;
+  }
+}

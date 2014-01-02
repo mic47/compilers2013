@@ -1,0 +1,10 @@
+function int plus(a, b) {
+  return a + b;
+}
+
+function int main() { 
+  s = "ttral\nala";
+  writestr(s);
+  writeint(5 + 10);
+  return 0;
+}

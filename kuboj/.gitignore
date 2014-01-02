@@ -1,0 +1,16 @@
+bin/*
+tmp/*
+*.iml
+*.so
+*.ll
+
+# JetBrains RubyMine files
+.idea
+
+# Eclipse files
+.project
+.buildpath
+
+# vim temporary files
+*.swp
+*.swo
