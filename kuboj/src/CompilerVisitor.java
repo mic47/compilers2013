@@ -1,5 +1,6 @@
 import java.util.HashMap;
 import java.util.Map;
+
 import org.stringtemplate.v4.*;
 
 public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
@@ -13,6 +14,27 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
         private String generateNewRegister() {
                 return String.format("%%R%d", this.registerIndex++);
+        }
+        
+        @Override
+        public CodeFragment visitInit(kubojParser.InitContext ctx) {
+        		CodeFragment code = new CodeFragment();
+        		code.addCode(
+                        "declare i32 @writeint(i32)\n" + 
+                        "declare i32 @writestr(i8*)\n"
+        		);
+                for (kubojParser.Declaration_functionContext s: ctx.declaration_function()) {
+                    	CodeFragment declaration_function = visit(s);
+                    	code.addCode(declaration_function);
+                    	code.setRegister(declaration_function.getRegister()); // ?
+                }
+                
+                CodeFragment declaration_main_function = visit(ctx.declaration_main_function());
+                
+                code.addCode(declaration_main_function);
+                code.setRegister(declaration_main_function.getRegister()); // ?
+                
+                return code;
         }
 /*
         @Override

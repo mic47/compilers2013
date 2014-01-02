@@ -1,6 +1,8 @@
 
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.gui.*;
+import java.util.*;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -15,10 +17,12 @@ public class Compiler {
         kubojLexer lexer = new kubojLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         kubojParser parser = new kubojParser(tokens);
-        ParseTree tree = parser.init(); // parse
+        ParseTree tree = parser.init();
+        
+        new TreeViewer(Arrays.asList(parser.getRuleNames()), tree).open();
 
-        CompilerVisitor eval = new CompilerVisitor();
-        CodeFragment code = eval.visit(tree);
-        System.out.print(code.toString());
+//        CompilerVisitor eval = new CompilerVisitor();
+//        CodeFragment code = eval.visit(tree);
+//        System.out.print(code.toString());
     }
 }
