@@ -4,12 +4,10 @@ tmp/*
 *.so
 *.ll
 
-# JetBrains RubyMine files
-.idea
-
 # Eclipse files
 .project
 .buildpath
+.settings
 
 # vim temporary files
 *.swp
