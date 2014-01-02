@@ -1,3 +1,3 @@
 #!/bin/bash
 
-java bin/Compiler < $1 > $2
+java -cp bin:$CLASSPATH Compiler < $1 > $2
