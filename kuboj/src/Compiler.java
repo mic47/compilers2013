@@ -19,10 +19,10 @@ public class Compiler {
         kubojParser parser = new kubojParser(tokens);
         ParseTree tree = parser.init();
         
-        new TreeViewer(Arrays.asList(parser.getRuleNames()), tree).open();
+        //new TreeViewer(Arrays.asList(parser.getRuleNames()), tree).open();
 
-//        CompilerVisitor eval = new CompilerVisitor();
-//        CodeFragment code = eval.visit(tree);
-//        System.out.print(code.toString());
+        CompilerVisitor eval = new CompilerVisitor();
+        CodeFragment code = eval.visit(tree);
+        //System.out.print(code.toString());
     }
 }

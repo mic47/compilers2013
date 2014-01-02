@@ -10,7 +10,6 @@ statement: declaration_var SEMICOLON statement
          | struct_for statement
          | struct_if statement
          | expression SEMICOLON statement
-         | return_call SEMICOLON statement
          |
          ;
 
@@ -29,7 +28,7 @@ declaration_function: FUNCTION type IDENTIFIER LPAR argument_list RPAR function_
 
 declaration_main_function: FUNCTION TYPE_INT MAIN LPAR RPAR function_body;
 
-function_body: LBRACE statement return_call SEMICOLON RBRACE;
+function_body: LBRACE statement RETURN expression SEMICOLON RBRACE;
 
 block: LBRACE statement RBRACE;
 
@@ -58,8 +57,6 @@ expression: op=(SUB | ADD) expression            # Una
           ;
 
 index_to_array: LBRACK expression RBRACK (LBRACK expression RBRACK)?;
-    
-return_call: RETURN expression;
 
 function_call: IDENTIFIER LPAR (argument_list)? RPAR;
 
