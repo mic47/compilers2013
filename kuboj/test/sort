@@ -1,6 +1,8 @@
 function int[] quicksort(array) {
+  var int[] retval;
+
   if (length(array) <= 1) {
-    return array;
+    retval = array;
   } else {
     var int pivot;
     pivot = array[length(array) - 1];
@@ -53,8 +55,10 @@ function int[] quicksort(array) {
       new_array[j + length(sorted_less)] = sorted_greater[j];
     }
 
-    return new_array;
+    retval = new_array;
   }
+
+  return retval;
 }
 
 function int main() {

@@ -25,9 +25,11 @@ type: simple_type
 
 declaration_var: VAR type IDENTIFIER;
 
-declaration_function: FUNCTION type IDENTIFIER LPAR argument_list RPAR block;
+declaration_function: FUNCTION type IDENTIFIER LPAR argument_list RPAR function_body;
 
-declaration_main_function: FUNCTION TYPE_INT MAIN LPAR RPAR block;
+declaration_main_function: FUNCTION TYPE_INT MAIN LPAR RPAR function_body;
+
+function_body: LBRACE statement return_call SEMICOLON RBRACE;
 
 block: LBRACE statement RBRACE;
 

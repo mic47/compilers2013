@@ -1,20 +1,24 @@
 function int[] bfs(v, g, visited) {
+  var int[] retval;
+
   if (visited[v] == 1) {
-    return visited;
-  }
-  visited[v] = 1;
-  var int i;
-  i = 0;
-  var int j;
-  j = 0;
-  for (i <= n; i += 1) {
-    for (j <= n; j += 1) {
-      if (g[i][j] == 1) {        
-        visited = bfs(j, g, visited);
+    retval = visited;
+  } else {
+    visited[v] = 1;
+    var int i;
+    i = 0;
+    var int j;
+    j = 0;
+    for (i <= n; i += 1) {
+      for (j <= n; j += 1) {
+        if (g[i][j] == 1) {        
+          visited = bfs(j, g, visited);
+        }
       }
-    }
-  }  
-  return visited;
+    }  
+  }
+
+  return retval;
 }
 
 function int main() {
@@ -58,9 +62,8 @@ function int main() {
 
   if (visited_all == 1) {
     writestr("ANO");
-    return 0;
   } else {
     writestr("NIE");
-    return 0;
   }
+  return 0;
 }

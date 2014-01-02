@@ -18,7 +18,7 @@ alebo sa donho hodnota moze dostat vratenim z inej funkcie
   array = myfunc();
 
 === funkcie ===
-je povinna funkcia main(), kazda funkcia musi mat return
+je povinna funkcia main(), kazda funkcia musi mat return, prave jeden a musi byt na konci
 
 === riadiace struktury ===
 for - riadiacu premennu musi mat dopredu deklarovanu
