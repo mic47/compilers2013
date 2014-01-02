@@ -1,0 +1,32 @@
+=== syntax ===
+c like - curly braces, okruhle zatvorky pri riadiacich strukturach a volaniach fcii
+bodkociarky na konci
+
+=== premenne ===
+deklaracia klucovym slovom 'var'
+najprv sa deklaruje, az potom dalsim prikazom priradi hodnota
+int
+string
+int[n] - jednorozmerne pole integerov velkosti n
+int[n][n] - dvojrozmerne pole integerov, n x n
+pole intov sa deklaruje ako 
+  var int[] array;
+s tym, ze je ho potom potrebne inicializovat bud ako
+  array = int[n];
+a tym padom uz donho mozem pchat hodnoty
+alebo sa donho hodnota moze dostat vratenim z inej funkcie
+  array = myfunc();
+
+=== funkcie ===
+je povinna funkcia main(), kazda funkcia musi mat return
+
+=== riadiace struktury ===
+for - riadiacu premennu musi mat dopredu deklarovanu
+if
+while
+
+=== kniznicne funkcie ===
+length([]) : int - vrati dlzku pola
+readint() : int - nacita integer zo stdinu
+writeint(int) - vypise integer na stdout
+writestr(string) - vypise string na stdout
