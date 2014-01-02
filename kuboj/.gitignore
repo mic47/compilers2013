@@ -16,3 +16,6 @@ src/#*
 # vim temporary files
 *.swp
 *.swo
+
+# ignore all generated files
+src/kuboj*
