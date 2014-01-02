@@ -1,3 +1,3 @@
 #!/bin/bash
 
-java Compiler < $1 > $2
+java bin/Compiler < $1 > $2
