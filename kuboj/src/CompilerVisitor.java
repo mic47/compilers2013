@@ -27,8 +27,8 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		CodeFragment code = new CodeFragment();
 		code.addCode(
 				"declare i32 @writeint(i32)\n" + 
-						"declare i32 @writestr(i8*)\n"
-				);
+				"declare i32 @writestr(i8*)\n"
+		);
 		for (kubojParser.Declaration_functionContext s: ctx.declaration_function()) {
 			CodeFragment declaration_function = visit(s);
 			code.addCode(declaration_function);
@@ -49,9 +49,9 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 		ST template = new ST( 
 				"define i32 @main() {\n" + 
-						"<body_code>" + 
-						"}\n"
-				);
+				"<body_code>" + 
+				"}\n"
+		);
 		template.add("body_code", body);
 
 		CodeFragment code = new CodeFragment();
@@ -83,12 +83,12 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 		ST template = new ST(  
 				"start:\n" + 
-						"<statements_code>" +
-						"br label %end\n" + 
-						"end:\n" +
-						"<exp_code>" +
-						"ret i32 0\n" // TODO type ... struct ? 
-				);
+				"<statements_code>" +
+				"br label %end\n" + 
+				"end:\n" +
+				"<exp_code>" +
+				"ret i32 0\n" // TODO type ... struct ? 
+		);
 		template.add("statements_code", statements);
 		template.add("exp_code", exp);
 
@@ -122,9 +122,9 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 		ST template = new ST(
 				"<reg1> = alloca [<str_size> x i8]\n" + 
-						"store [<str_size> x i8] c\"<hex_str>\", [<str_size> x i8]* <reg1>\n" +
-						"<reg2> = getelementptr [<str_size> x i8]* <reg1>, i64 0, i64 0\n"
-				);
+				"store [<str_size> x i8] c\"<hex_str>\", [<str_size> x i8]* <reg1>\n" +
+				"<reg2> = getelementptr [<str_size> x i8]* <reg1>, i64 0, i64 0\n"
+		);
 		String reg1 = generateNewRegister();
 		String reg2 = generateNewRegister();
 		template.add("reg1", reg1);
