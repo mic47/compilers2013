@@ -23,13 +23,14 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 	public CodeFragment visitInit(kubojParser.InitContext ctx) {
 		functions.put("writeint", new Function("writeint", "i32", new ArrayList<String>(Arrays.asList("i32"))));
 		functions.put("writestr",new Function("writestr", "i32", new ArrayList<String>(Arrays.asList("i8*"))));
-		functions.put("writestr2",new Function("writestr2", "i32", new ArrayList<String>(Arrays.asList("i8*", "i8*"))));
+		
+		functions.put("writestrint",new Function("writestrint", "i32", new ArrayList<String>(Arrays.asList("i8*", "i32"))));
 
 		CodeFragment code = new CodeFragment();
 		code.addCode( // TODO: Function#getDeclarationString()
 				"declare i32 @writeint(i32)\n" + 
 				"declare i32 @writestr(i8*)\n" +
-				"declare i32 @writestr2(i8*, i8*)\n" +
+				"declare i32 @writestrint(i8*, i32)\n" +
 			    "\n"
 		);
 		for (kubojParser.Declaration_functionContext s: ctx.declaration_function()) {
@@ -179,7 +180,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 	@Override
 	public CodeFragment visitUna(kubojParser.UnaContext ctx) {
 		System.out.println("Una");
-
+		
 		return new CodeFragment();
 	}
 
@@ -227,9 +228,12 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 	@Override
 	public CodeFragment visitInt(kubojParser.IntContext ctx) {
-		//System.out.println("Int - " + ctx.getText());
-
-		return new CodeFragment();
+        String value = ctx.INT().getText();
+        CodeFragment code = new CodeFragment();
+        String register = generateNewRegister();
+        code.setRegister(register);
+        code.addCode(String.format("%s = add i32 0, %s\n", register, value));
+        return code;
 	}
 
 

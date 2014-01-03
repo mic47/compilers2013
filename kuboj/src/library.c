@@ -11,8 +11,8 @@ int writestr(char *str) {
     return 0;
 }
 
-int writestr2(char *str, char *str2) {
-    printf("%s", str);
-    printf("%s", str2);
+int writestrint(char *str, int a) {
+    printf("%s\n", str);
+    printf("%d\n", a);
     return 0;
 }

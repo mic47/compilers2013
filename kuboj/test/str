@@ -1,4 +1,4 @@
 function int main() {
-  writestr2("mnaf", "mnafff");
+  writestrint("mnaf", 10);
   return 0;
 }
