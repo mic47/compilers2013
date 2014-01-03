@@ -4,13 +4,12 @@ init: (declaration_function)* declaration_main_function;
 
 //statement: (declaration_var SEMICOLON | array_initialization SEMICOLON | assignment SEMICOLON | struct_for | struct_if | expression SEMICOLON | return_call SEMICOLON)+;
 
-statement: declaration_var SEMICOLON statement
-         | array_initialization SEMICOLON statement
-         | assignment SEMICOLON statement
-         | struct_for statement
-         | struct_if statement
-         | expression SEMICOLON statement
-         |
+statement: declaration_var SEMICOLON
+         | array_initialization SEMICOLON
+         | assignment SEMICOLON
+         | struct_for
+         | struct_if
+         | expression SEMICOLON
          ;
 
 simple_type: TYPE_INT
@@ -28,9 +27,9 @@ declaration_function: FUNCTION type IDENTIFIER LPAR argument_list RPAR function_
 
 declaration_main_function: FUNCTION TYPE_INT MAIN LPAR RPAR function_body;
 
-function_body: LBRACE statement RETURN expression SEMICOLON RBRACE;
+function_body: LBRACE (statement)* RETURN expression SEMICOLON RBRACE;
 
-block: LBRACE statement RBRACE;
+block: LBRACE (statement)* RBRACE;
 
 array_initialization: IDENTIFIER EQ simple_type index_to_array; 
 
