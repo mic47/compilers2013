@@ -55,9 +55,9 @@ expression: op=(SUB | ADD) expression            # Una
 
 index_to_array: LBRACK expression RBRACK (LBRACK expression RBRACK)?;
 
-function_call: IDENTIFIER LPAR (argument_list)? RPAR;
+function_call: IDENTIFIER LPAR argument_list RPAR;
 
-argument_list: expression (COMMA expression)*;
+argument_list: (expression (COMMA expression)*)?;
 
 condition: expression op=(DOUBLEEQ | NOTEQ | LESSEQ | GREATEREQ | LESS | GREATER) expression;
            
@@ -95,5 +95,5 @@ MOD: '%';
 MAIN: 'main';
 INT: [0-9]+;
 IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]*;
-STRING: '"' ~[\t\r\n]* '"';
+STRING: '"' ~['"'\t\r\n]* '"';
 WHITESPACE: [ \t\r\n] -> skip;
