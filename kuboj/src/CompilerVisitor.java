@@ -73,8 +73,6 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 	@Override
 	public CodeFragment visitFunction_body(kubojParser.Function_bodyContext ctx) {
-		//System.out.println("Function_body - " + ctx.getText());
-
 		CodeFragment statements = new CodeFragment();
 
 		for (kubojParser.StatementContext s: ctx.statement()) {
@@ -109,8 +107,6 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 	@Override
 	public CodeFragment visitStr(kubojParser.StrContext ctx) {
-//		System.out.println("Str - " + ctx.getText());
-
 		CodeFragment code = new CodeFragment();
 		String s = ctx.STRING().getText();
 		s = s.substring(1, s.length() - 1);
@@ -180,49 +176,49 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 	@Override
 	public CodeFragment visitUna(kubojParser.UnaContext ctx) {
 		System.out.println("Una");
-		
+		// TODO
 		return new CodeFragment();
 	}
 
 	@Override
 	public CodeFragment visitMul(kubojParser.MulContext ctx) {
 		System.out.println("Mul");
-
+		// TODO
 		return new CodeFragment();
 	}
 
 	@Override
 	public CodeFragment visitAdd(kubojParser.AddContext ctx) {
 		System.out.println("Add");
-
+		// TODO
 		return new CodeFragment();
 	}        
 
 	@Override
 	public CodeFragment visitMod(kubojParser.ModContext ctx) {
 		System.out.println("Mod");
-
+		// TODO
 		return new CodeFragment();
 	}
 
 	@Override
 	public CodeFragment visitPar(kubojParser.ParContext ctx) {
 		System.out.println("Par");
-
+		// TODO
 		return new CodeFragment();
 	}
 
 	@Override
 	public CodeFragment visitInd(kubojParser.IndContext ctx) {
 		System.out.println("Ind");
-
+		// TODO
 		return new CodeFragment();
 	}    
 
 	@Override
 	public CodeFragment visitVar(kubojParser.VarContext ctx) {
 		System.out.println("Var");
-
+		// TODO
 		return new CodeFragment();
 	}
 
