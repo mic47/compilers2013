@@ -90,12 +90,13 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 				Utils.addTab("br label %end\n", CodeFragment.TAB_WIDTH) + 
 				"end:\n" +
 				"<exp_code>" +
-				Utils.addTab("ret i32 0\n", CodeFragment.TAB_WIDTH) // TODO type ... struct ? 
+				Utils.addTab("ret i32 <ret_register>\n", CodeFragment.TAB_WIDTH) // TODO type ... struct ? 
 		);
 		statements.addTab();
 		template.add("statements_code", statements);
 		exp.addTab();
 		template.add("exp_code", exp);
+		template.add("ret_register", exp.getRegister());
 
 		CodeFragment code = new CodeFragment();
 		code.addCode(template.render());
@@ -112,8 +113,8 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 	public CodeFragment visitStr(kubojParser.StrContext ctx) {
 		CodeFragment code = new CodeFragment();
 		String s = ctx.STRING().getText();
-		s = s.substring(1, s.length() - 1); // remove double quotes
-		String hexString = Utils.stringToHex(Utils.unescapeJavaString(s));
+		s = Utils.unescapeJavaString(s.substring(1, s.length() - 1)); // remove double quotes
+		String hexString = Utils.stringToHex(s);
 		
 		ST template = new ST(
 				"<reg1> = alloca [<str_size> x i8]\n" + 

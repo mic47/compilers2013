@@ -1,4 +1,0 @@
-function int main() {
-  writestrint("mnaf", 10);
-  return 0;
-}
