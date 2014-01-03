@@ -1,6 +1,6 @@
 public class CodeFragment {
-	private String code;
-	private String register;
+	protected String code;
+	protected String register;
 
 	public CodeFragment() {
 		this.code = "";

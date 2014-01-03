@@ -10,3 +10,9 @@ int writestr(char *str) {
     printf("%s", str);
     return 0;
 }
+
+int writestr2(char *str, char *str2) {
+    printf("%s", str);
+    printf("%s", str2);
+    return 0;
+}

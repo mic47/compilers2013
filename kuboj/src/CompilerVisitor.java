@@ -23,11 +23,14 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 	public CodeFragment visitInit(kubojParser.InitContext ctx) {
 		functions.put("writeint", new Function("writeint", "i32", new ArrayList<String>(Arrays.asList("i32"))));
 		functions.put("writestr",new Function("writestr", "i32", new ArrayList<String>(Arrays.asList("i8*"))));
+		functions.put("writestr2",new Function("writestr2", "i32", new ArrayList<String>(Arrays.asList("i8*", "i8*"))));
 
 		CodeFragment code = new CodeFragment();
-		code.addCode(
+		code.addCode( // TODO: Function#getDeclarationString()
 				"declare i32 @writeint(i32)\n" + 
-				"declare i32 @writestr(i8*)\n"
+				"declare i32 @writestr(i8*)\n" +
+				"declare i32 @writestr2(i8*, i8*)\n" +
+			    "\n"
 		);
 		for (kubojParser.Declaration_functionContext s: ctx.declaration_function()) {
 			CodeFragment declaration_function = visit(s);
@@ -100,15 +103,12 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 	@Override
 	public CodeFragment visitStExp(kubojParser.StExpContext ctx) {
-		CodeFragment code = new CodeFragment();
-		code.addCode(visit(ctx.expression()));
-
-		return code;
+		return visit(ctx.expression());
 	}
 
 	@Override
 	public CodeFragment visitStr(kubojParser.StrContext ctx) {
-		//System.out.println("Str - " + ctx.getText());
+//		System.out.println("Str - " + ctx.getText());
 
 		CodeFragment code = new CodeFragment();
 		String s = ctx.STRING().getText();
@@ -140,10 +140,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 	@Override
 	public CodeFragment visitFunc(kubojParser.FuncContext ctx) {
-		CodeFragment code = new CodeFragment();
-		code.addCode(visit(ctx.function_call()));
-
-		return code;
+		return visit(ctx.function_call());
 	}
 
 	@Override
@@ -155,14 +152,12 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 			System.err.println(String.format("Error: unknown function '%s'", functionName));
 		}
 
-		CodeFragment argumentList = visit(ctx.argument_list());
+		ArgumentListCodeFragment argumentList = (ArgumentListCodeFragment)visit(ctx.argument_list());
 		code.addCode(argumentList);
 
 		String retvalRegister = generateNewRegister();
-		ArrayList<String> a = new ArrayList<String>();
-		a.add(argumentList.getRegister());
 
-		code.addCode(functions.get(functionName).getCallInstruction(retvalRegister, a));
+		code.addCode(functions.get(functionName).getCallInstruction(retvalRegister, argumentList.getRegisters()));
 		code.setRegister(retvalRegister);
 
 		return code;
@@ -170,16 +165,15 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 	@Override
 	public CodeFragment visitArgument_list(kubojParser.Argument_listContext ctx) {
-		// TODO: how to return multiple registers ?
-		CodeFragment code = new CodeFragment();
+		ArgumentListCodeFragment code = new ArgumentListCodeFragment();
 
 		for (kubojParser.ExpressionContext e : ctx.expression()) {
 			CodeFragment expression = visit(e);
 			code.addCode(expression);
-			code.setRegister(expression.getRegister());
+			code.addRegister(expression.getRegister());
 		}
 
-		return code;
+		return (CodeFragment)code;
 	}
 
 	@Override
