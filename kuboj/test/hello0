@@ -1,4 +1,0 @@
-function int main() {
-  writeint(47);
-  return 0;
-}
