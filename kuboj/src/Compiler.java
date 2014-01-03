@@ -23,6 +23,6 @@ public class Compiler {
 
         CompilerVisitor eval = new CompilerVisitor();
         CodeFragment code = eval.visit(tree);
-        //System.out.print(code.toString());
+        System.out.print(code.toString());
     }
 }

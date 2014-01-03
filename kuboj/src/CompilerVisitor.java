@@ -1,9 +1,12 @@
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.stringtemplate.v4.*;
 
 public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
+		private Map<String, Function> functions = new HashMap<String, Function>();
         private Map<String, String> mem = new HashMap<String, String>();
         private int labelIndex = 0;
         private int registerIndex = 0;
@@ -18,6 +21,9 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
         
         @Override
         public CodeFragment visitInit(kubojParser.InitContext ctx) {
+        		functions.put("writeint", new Function("writeint", "i32", new ArrayList<String>(Arrays.asList("i32"))));
+        		functions.put("writestr",new Function("writestr", "i32", new ArrayList<String>(Arrays.asList("i8*"))));
+        	
         		CodeFragment code = new CodeFragment();
         		code.addCode(
                         "declare i32 @writeint(i32)\n" + 
@@ -63,20 +69,27 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
         
         @Override
         public CodeFragment visitFunction_body(kubojParser.Function_bodyContext ctx) {
-        		System.out.println("Function_body - " + ctx.getText());
+        		//System.out.println("Function_body - " + ctx.getText());
         		
-	            CodeFragment body = visit(ctx.statement());
+        		CodeFragment statements = new CodeFragment();
+        		
+                for (kubojParser.StatementContext s: ctx.statement()) {
+                	CodeFragment statement = visit(s);
+                	statements.addCode(statement);
+                	statements.setRegister(statement.getRegister()); // ?
+                }
+        		
 	            CodeFragment exp = visit(ctx.expression());
 	
 	            ST template = new ST(  
 	                    "start:\n" + 
-	                    "<body_code>" +
-	                    "return:\n" +
+	                    "<statements_code>" +
+	                    "br label %end\n" + 
+	                    "end:\n" +
 	                    "<exp_code>" +
-	                    "ret i32 0\n" + // TODO type ... struct ? 
-	                    "}\n"
+	                    "ret i32 0\n" // TODO type ... struct ? 
 	            );
-	            template.add("body_code", body);
+	            template.add("statements_code", statements);
 	            template.add("exp_code", exp);
 	
 	            CodeFragment code = new CodeFragment();
@@ -86,8 +99,16 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
         }
         
         @Override
+        public CodeFragment visitStExp(kubojParser.StExpContext ctx) {
+        		CodeFragment code = new CodeFragment();
+        		code.addCode(visit(ctx.expression()));
+        		
+        		return code;
+        }
+        
+        @Override
         public CodeFragment visitStr(kubojParser.StrContext ctx) {
-        		System.out.println("Str - " + ctx.getText());
+        		//System.out.println("Str - " + ctx.getText());
 
         		CodeFragment code = new CodeFragment();
         		String s = ctx.STRING().getText();
@@ -115,18 +136,50 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
         		return code;
         }
         
-        public CodeFragment visitExpression(kubojParser.ExpressionContext ctx) {
-        		System.out.println("Expression - " + ctx.getText());
-        		
-        		return new CodeFragment();
+        @Override
+        public CodeFragment visitFunc(kubojParser.FuncContext ctx) {
+	    		CodeFragment code = new CodeFragment();
+	    		code.addCode(visit(ctx.function_call()));
+	    		
+	    		return code;
         }
         
         @Override
-        public CodeFragment visitStatement(kubojParser.StatementContext ctx) {
-    		System.out.println("Statement - " + ctx.getText());
-    		
-    		return new CodeFragment();
-        }  
+        public CodeFragment visitFunction_call(kubojParser.Function_callContext ctx) {
+	    		CodeFragment code = new CodeFragment();
+	    		
+	    		String functionName = ctx.IDENTIFIER().getText();
+	    		if (!functions.containsKey(functionName)) {
+	    			System.err.println(String.format("Error: unknown function '%s'", functionName));
+	    		}
+	    		
+	    		
+	    		
+	    		CodeFragment argumentList = visit(ctx.argument_list());
+	    		code.addCode(argumentList);
+	    		
+	    		String retvalRegister = generateNewRegister();
+	    		ArrayList<String> a = new ArrayList<String>();
+	    		a.add(argumentList.getRegister());
+	    		
+	    		code.addCode(functions.get(functionName).getCallInstruction(retvalRegister, a));
+	    		code.setRegister(retvalRegister);
+	    		
+	    		return code;
+        }        
+        
+        @Override
+        public CodeFragment visitArgument_list(kubojParser.Argument_listContext ctx) {
+        		CodeFragment code = new CodeFragment();
+        		
+        		for (kubojParser.ExpressionContext e : ctx.expression()) {
+        			CodeFragment expression = visit(e);
+        			code.addCode(expression);
+        			code.setRegister(expression.getRegister());
+        		}
+        		
+        		return code;
+        }
         
         @Override
         public CodeFragment visitUna(kubojParser.UnaContext ctx) {
@@ -168,14 +221,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
         	System.out.println("Ind");
     		
     		return new CodeFragment();
-        }
-        
-        @Override
-        public CodeFragment visitFunc(kubojParser.FuncContext ctx) {
-        	System.out.println("Func");
-    		
-    		return new CodeFragment();
-        }        
+        }    
         
         @Override
         public CodeFragment visitVar(kubojParser.VarContext ctx) {
@@ -186,7 +232,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
         
         @Override
         public CodeFragment visitInt(kubojParser.IntContext ctx) {
-        	System.out.println("Int - " + ctx.getText());
+        	//System.out.println("Int - " + ctx.getText());
     		
     		return new CodeFragment();
         }

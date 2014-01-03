@@ -2,14 +2,12 @@ grammar kuboj;
 
 init: (declaration_function)* declaration_main_function;
 
-//statement: (declaration_var SEMICOLON | array_initialization SEMICOLON | assignment SEMICOLON | struct_for | struct_if | expression SEMICOLON | return_call SEMICOLON)+;
-
-statement: declaration_var SEMICOLON
-         | array_initialization SEMICOLON
-         | assignment SEMICOLON
-         | struct_for
-         | struct_if
-         | expression SEMICOLON
+statement: declaration_var SEMICOLON      # StDec
+         | array_initialization SEMICOLON # StArr
+         | assignment SEMICOLON           # StAss  
+         | struct_for                     # StFor
+         | struct_if                      # StIf
+         | expression SEMICOLON           # StExp
          ;
 
 simple_type: TYPE_INT
