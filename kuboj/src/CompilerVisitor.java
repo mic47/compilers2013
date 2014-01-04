@@ -226,6 +226,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		String identifier = ctx.IDENTIFIER().getText();
 		CodeFragment expression = visit(ctx.expression());
 		Variable variable = null;
+		
 		logger.log("found identifier '%s'", identifier);
 		
 		if (!variables.containsKey(identifier)) {
@@ -304,10 +305,10 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
                 "br i1 <cmp_reg>, label %<block_true>, label %<block_false>\n" +
                 "<block_true>:\n" +
                 "<statement_true_code>" +
-                "br label %<block_end>\n" + 
+                Utils.addTab("br label %<block_end>\n", CodeFragment.TAB_WIDTH) + 
                 "<block_false>:\n" + 
                 "<statement_false_code>" +
-                "br label %<block_end>\n" + 
+                Utils.addTab("br label %<block_end>\n", CodeFragment.TAB_WIDTH) + 
                 "<block_end>:\n" +
                 Utils.addTab("<ret> = add i32 0, 0\n", CodeFragment.TAB_WIDTH)
         );
@@ -334,7 +335,35 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		logger.tab(ctx);
 		CodeFragment code = new CodeFragment();
 		
-		// TODO
+        CodeFragment condition = visit(ctx.expression());
+        CodeFragment body = visit(ctx.block());
+        CodeFragment assignment = visit(ctx.assignment());
+        body.addCode(assignment);
+        
+        ST template = new ST(
+                "br label %<cmp_label>\n" + 
+                "<cmp_label>:\n" + 
+                "<condition_code>" +
+                Utils.addTab("<cmp_register> = icmp ne i32 <condition_register>, 0\n", CodeFragment.TAB_WIDTH) + 
+                Utils.addTab("br i1 <cmp_register>, label %<body_label>, label %<end_label>\n", CodeFragment.TAB_WIDTH) + 
+                "<body_label>:\n" + 
+                "<body_code>" + 
+                Utils.addTab("br label %<cmp_label>\n", CodeFragment.TAB_WIDTH) + 
+                Utils.addTab("<end_label>:\n", CodeFragment.TAB_WIDTH) + 
+                Utils.addTab("<ret> = add i32 0, 0\n", CodeFragment.TAB_WIDTH)
+        );
+        template.add("cmp_label", generateNewLabel());
+        template.add("condition_code", Utils.addTab(condition.toString(), CodeFragment.TAB_WIDTH));
+        template.add("cmp_register", generateNewRegister());
+        template.add("condition_register", condition.getRegister());
+        template.add("body_label", generateNewLabel());
+        template.add("end_label", generateNewLabel());
+        template.add("body_code", Utils.addTab(body.toString(), CodeFragment.TAB_WIDTH));
+        String end_register = generateNewRegister();
+        template.add("ret", end_register);
+        
+        code.addCode(template.render());
+        code.setRegister(end_register);
 		
 		logger.logCode(code);
 		logger.untab();
