@@ -1,11 +1,8 @@
 general
-  - assignments
+  - int[] assignments
+  - function declarations
   - for
   - if
-  - un/bin operations
-  - variable declarations (int, int[])
-  - function declarations
-  - and/or/not ? 
 
 library.c
   - add readint function
