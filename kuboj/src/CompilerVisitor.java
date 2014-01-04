@@ -3,13 +3,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.omg.CORBA.CTX_RESTRICT_SCOPE;
 import org.stringtemplate.v4.*;
 
 public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 	private Map<String, Function> functions = new HashMap<String, Function>();
-	private Map<String, String> mem = new HashMap<String, String>();
+	private Map<String, Variable> variables = new HashMap<String, Variable>();
 	private int labelIndex = 0;
 	private int registerIndex = 0;
+	private Logger logger;
 
 	private String generateNewLabel() {
 		return String.format("L%d", this.labelIndex++);
@@ -21,16 +23,21 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 	@Override
 	public CodeFragment visitInit(kubojParser.InitContext ctx) {
-		functions.put("writeint", new Function("writeint", "i32", new ArrayList<String>(Arrays.asList("i32"))));
-		functions.put("writestr",new Function("writestr", "i32", new ArrayList<String>(Arrays.asList("i8*"))));
+		logger = new Logger(ctx);
 		
-		functions.put("writestrint",new Function("writestrint", "i32", new ArrayList<String>(Arrays.asList("i8*", "i32"))));
+		functions.put("writeint", new Function("writeint", "i32", new ArrayList<String>(Arrays.asList("i32"))));
+		functions.put("writestr", new Function("writestr", "i32", new ArrayList<String>(Arrays.asList("i8*"))));
+		functions.put("writeintnl", new Function("writeintnl", "i32", new ArrayList<String>(Arrays.asList("i32"))));
+		functions.put("writestrnl", new Function("writestrnl", "i32", new ArrayList<String>(Arrays.asList("i8*"))));
+		functions.put("mallocint", new Function("mallocint", "i32*", new ArrayList<String>(Arrays.asList("i32"))));
 
 		CodeFragment code = new CodeFragment();
 		code.addCode( // TODO: Function#getDeclarationString()
 				"declare i32 @writeint(i32)\n" + 
 				"declare i32 @writestr(i8*)\n" +
-				"declare i32 @writestrint(i8*, i32)\n" +
+				"declare i32 @writeintnl(i32)\n" + 
+				"declare i32 @writestrnl(i8*)\n" +
+				"declare i32* @mallocint(i32)\n" +
 			    "\n"
 		);
 		for (kubojParser.Declaration_functionContext s: ctx.declaration_function()) {
@@ -49,6 +56,8 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 	@Override
 	public CodeFragment visitDeclaration_main_function(kubojParser.Declaration_main_functionContext ctx) {
+		logger.writeFunction(ctx);
+		logger.tab();
 		CodeFragment body = visit(ctx.function_body());
 
 		ST template = new ST( 
@@ -62,6 +71,8 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		CodeFragment code = new CodeFragment();
 		code.addCode(template.render());
 		code.setRegister(body.getRegister());
+		
+		logger.untab();
 		return code;
 	}
 
@@ -69,11 +80,14 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 	public CodeFragment visitDeclaration_function(kubojParser.Declaration_functionContext ctx) {
 		CodeFragment code = new CodeFragment();
 		// TODO
+		// - declare variables in head
 		return code;        	
 	}
 
 	@Override
 	public CodeFragment visitFunction_body(kubojParser.Function_bodyContext ctx) {
+		logger.writeFunction(ctx);
+		logger.tab();
 		CodeFragment statements = new CodeFragment();
 
 		for (kubojParser.StatementContext s: ctx.statement()) {
@@ -101,13 +115,43 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		CodeFragment code = new CodeFragment();
 		code.addCode(template.render());
 		code.setRegister(exp.getRegister());
+		
+		logger.untab();
 		return code;       	
 	}
-
+	
 	@Override
-	public CodeFragment visitStExp(kubojParser.StExpContext ctx) {
-		return visit(ctx.expression());
-	}
+	public CodeFragment visitDeclaration_var(kubojParser.Declaration_varContext ctx) {
+		logger.writeFunction(ctx);
+		logger.tab();
+		CodeFragment code = new CodeFragment();
+		
+		String identifier = ctx.IDENTIFIER().getText();
+		String type = ctx.type().getText();
+		Variable variable = null;
+		logger.log("trying to declare variable '%s' of type '%s'", identifier, type);
+		
+		if (variables.containsKey(identifier)) {
+			logger.error("Variable '%s' already declared", identifier);
+		} else {
+			String mem_register = generateNewRegister();
+			
+			if (type.equals("int")) {
+				code.addCode(String.format("%s = alloca i32\n", mem_register));
+				variable = new IntVariable(identifier, mem_register);
+			} else if (type.equals("int[]")) {
+				code.addCode(String.format("%s = alloca i32*\n", mem_register));
+				variable = new PIntVariable(identifier, mem_register);
+			} else {
+				logger.error("Unknown type '%s'", type);
+			}
+			variables.put(identifier, variable);
+		}
+		
+		logger.logCode(code);
+		logger.untab();
+		return code;
+	}	
 
 	@Override
 	public CodeFragment visitStr(kubojParser.StrContext ctx) {
@@ -171,6 +215,41 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 		return (CodeFragment)code;
 	}
+	
+	@Override
+	public CodeFragment visitAssignment(kubojParser.AssignmentContext ctx) {
+		logger.writeFunction(ctx);
+		logger.tab();
+		CodeFragment code = new CodeFragment();
+		
+		String identifier = ctx.IDENTIFIER().getText();
+		CodeFragment expression = visit(ctx.expression());
+		Variable variable = null;
+		logger.log("found identifier '%s'", identifier);
+		
+		if (!variables.containsKey(identifier)) {
+			logger.error("Error: unknown identifier '%s'", identifier);
+		} else {
+			variable = variables.get(identifier);
+			if (ctx.index_to_array() == null) {
+				logger.log("not indexing to array");
+				code.addCode(expression);
+				code.addCode(String.format(
+						"store i32 %s, i32* %s\n",
+						expression.getRegister(),
+						variable.getRegister()
+				));
+				logger.log("assign to " + variable);
+			} else {
+				logger.log("indexing to array");
+				// TODO
+			}
+		}
+		
+		logger.logCode(code);
+		logger.untab();
+		return code;
+	}
 
 	@Override
 	public CodeFragment visitUna(kubojParser.UnaContext ctx) {
@@ -216,18 +295,73 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 	@Override
 	public CodeFragment visitVar(kubojParser.VarContext ctx) {
-		System.out.println("Var");
-		// TODO
-		return new CodeFragment();
+		logger.writeFunction(ctx);
+		logger.tab();
+		CodeFragment code = new CodeFragment();
+		
+		String identifier = ctx.IDENTIFIER().getText();
+		Variable variable = null;
+		if (!variables.containsKey(identifier)) {
+			logger.error("Unknown identifier '%s'", identifier);
+		} else {
+			variable = variables.get(identifier);
+		}
+		
+		if (variable.isInt()) {
+			String register = generateNewRegister();
+			code.addCode(String.format(
+					"%s = load i32* %s\n",
+					register,
+					variable.getRegister()
+			));
+			code.setRegister(register);
+		} else if (variable.isPInt()) {
+			// TODO
+		}
+		
+		logger.logCode(code);
+		logger.untab();
+		return code;
 	}
 
 	@Override
 	public CodeFragment visitInt(kubojParser.IntContext ctx) {
+		logger.writeFunction(ctx);
+		logger.tab();
+		CodeFragment code = new CodeFragment();
+		
         String value = ctx.INT().getText();
-        CodeFragment code = new CodeFragment();
         String register = generateNewRegister();
         code.setRegister(register);
         code.addCode(String.format("%s = add i32 0, %s\n", register, value));
+        
+        logger.logCode(code);
+        logger.untab();
         return code;
+	}
+	
+	@Override
+	public CodeFragment visitStDec(kubojParser.StDecContext ctx) {
+		return visit(ctx.declaration_var());
+	}
+	
+	@Override
+	public CodeFragment visitStAss(kubojParser.StAssContext ctx) {
+		return visit(ctx.assignment());
+	}
+	
+	@Override
+	public CodeFragment visitStFor(kubojParser.StForContext ctx) {
+		return visit(ctx.struct_for());
+	}
+	
+	@Override
+	public CodeFragment visitStIf(kubojParser.StIfContext ctx) {
+		return visit(ctx.struct_if());
+	}
+
+	@Override
+	public CodeFragment visitStExp(kubojParser.StExpContext ctx) {
+		return visit(ctx.expression());
 	}
 }
