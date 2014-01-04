@@ -1,58 +1,56 @@
-function int[] quicksort(int[] array) {
+function int[] quicksort(int[] array, int length) {
   var int[] retval;
 
   if (length(array) <= 1) {
     retval = array;
   } else {
     var int pivot;
-    pivot = array[length(array) - 1];
+    pivot = array[length - 1];
     var int num_of_less_than_pivot;
     num_of_less_than_pivot = 0;
     var int j;
-    for (j < length(array); j += 1) {
+    for (j < length; j += 1) {
       if (array[j] < pivot) {
         num_of_less_than_pivot += 1;
       }
     }
 
     var int[] less;
-    less = int[num_of_less_than_pivot];
-    var int less_pointer;
-    less_pointer = 0;
+    less = mallocint(num_of_less_than_pivot);
+    var int less_length;    
+    less_length = 0;
 
     var int[] greater;
-    greater = int[length(array) - 1 - num_of_less_than_pivot];
-    var int greater_pointer;
-    greater_pointer = 0;
+    greater = mallocint(length - 1 - num_of_less_than_pivot);
+    var int greater_length;    
+    greater_length = 0;
 
     j = 0;
-    for (j < length(array); j += 1) {
+    for (j < length; j += 1) {
       if (array[j] < pivot) {
-        less[less_pointer] = array[j];
-        less_pointer += 1;
+        less[less_length] = array[j];
+        less_length += 1;
       } else {
-        greater[greater_pointer] = array[j];
-        greater_pointer += 1; 
+        greater[greater_length] = array[j];
+        greater_length += 1; 
       }
     }
   
     var int[] sorted_less;
-    sorted_less = int[less_pointer];
-    sorted_less = quicksort(less);
+    sorted_less = quicksort(less, less_length);
     var int[] sorted_greater;
-    sorted_greater = int[greater_pointer];
-    sorted_greater = quicksort(greater);
+    sorted_greater = quicksort(greater, greater_length);
 
     var int[] new_array;
-    new_array = int[length(array)];
+    new_array = mallocint(length);
     j = 0;
-    for (j < length(sorted_less); j += 1) {
+    for (j < less_length; j += 1) {
       new_array[j] = sorted_less[j];
     }
-    new_array[length(sorted_less)] = pivot;
+    new_array[less_length] = pivot;
     j = 0;
-    for (j < length(sorted_greater); j += 1) {
-      new_array[j + length(sorted_less)] = sorted_greater[j];
+    for (j < greater_length; j += 1) {
+      new_array[j + less_length] = sorted_greater[j];
     }
 
     retval = new_array;
@@ -65,22 +63,18 @@ function int main() {
   var int n;
   n = readint();
   var int[] a;
-  a = int[n];
+  a = mallocint(n);
   var int i;  
   for (i < n; i += 1) {
     a[i] = readint();
   }
 
   var int[] sorted;
-  sorted = int[n];
-  sorted = quicksort(a);
+  sorted = quicksort(a, n);
 
   i = 0;
-  var string newline;
-  newline = "\n";
   for (i < n; i += 1) {
-    writeint(sorted[i]);
-    writestr(newline);
+    writeintnl(sorted[i]);
   }
   return 0;
 }

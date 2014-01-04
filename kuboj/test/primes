@@ -6,7 +6,7 @@ function int main() {
   var int j;
   j = 2;
   var int[] is_prime;
-  is_prime = int[n + 1];
+  is_prime = mallocint(n + 1);
 
   for (i <= n; i += 1) {
     is_prime[i] = 1;
@@ -22,12 +22,9 @@ function int main() {
   }
 
   i = 2;
-  var string newline;
-  newline = "\n";
   for (i <= n; i += 1) {
     if (is_prime[i] == 1) {
-      writeint(i);
-      writestr(newline);
+      writeintnl(i);
     }
   }
   return 0;

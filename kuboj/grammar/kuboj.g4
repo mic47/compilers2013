@@ -3,20 +3,14 @@ grammar kuboj;
 init: (declaration_function)* declaration_main_function;
 
 statement: declaration_var SEMICOLON      # StDec
-         | array_initialization SEMICOLON # StArr
          | assignment SEMICOLON           # StAss  
          | struct_for                     # StFor
          | struct_if                      # StIf
          | expression SEMICOLON           # StExp
          ;
 
-simple_type: TYPE_INT
-           | TYPE_STRING
-           ;
-
-type: simple_type                       
-    | simple_type TYPE_ARRAY           
-    | simple_type TYPE_ARRAY TYPE_ARRAY
+type: TYPE_INT
+    | TYPE_PINT              
     ;      
 
 declaration_var: VAR type IDENTIFIER;
@@ -28,8 +22,6 @@ declaration_main_function: FUNCTION TYPE_INT MAIN LPAR RPAR function_body;
 function_body: LBRACE (statement)* RETURN expression SEMICOLON RBRACE;
 
 block: LBRACE (statement)* RBRACE;
-
-array_initialization: IDENTIFIER EQ simple_type index_to_array; 
 
 assignment: lvalue op=(EQ | PLUSEQ | MINUSEQ) expression;    
 
@@ -53,7 +45,7 @@ expression: op=(SUB | ADD) expression            # Una
           | INT                                  # Int
           ;
 
-index_to_array: LBRACK expression RBRACK (LBRACK expression RBRACK)?;
+index_to_array: LBRACK expression RBRACK;
 
 function_call: IDENTIFIER LPAR argument_list RPAR;
 
@@ -64,8 +56,7 @@ argument_list: (expression (COMMA expression)*)?;
 condition: expression op=(DOUBLEEQ | NOTEQ | LESSEQ | GREATEREQ | LESS | GREATER) expression;
            
 TYPE_INT: 'int';
-TYPE_STRING: 'string';
-TYPE_ARRAY: '[]';
+TYPE_PINT: 'int[]';
 SEMICOLON: ';';
 COMMA: ',';
 VAR: 'var';

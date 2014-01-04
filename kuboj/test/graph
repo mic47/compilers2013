@@ -1,4 +1,4 @@
-function int[] bfs(int v, int g, int[] visited) {
+function int[] bfs(int v, int[] g, int length, int[] visited) {
   var int[] retval;
 
   if (visited[v] == 1) {
@@ -9,10 +9,10 @@ function int[] bfs(int v, int g, int[] visited) {
     i = 0;
     var int j;
     j = 0;
-    for (i <= n; i += 1) {
-      for (j <= n; j += 1) {
-        if (g[i][j] == 1) {        
-          visited = bfs(j, g, visited);
+    for (i <= length; i += 1) {
+      for (j <= length; j += 1) {
+        if (g[(i * length) + j] == 1) {        
+          visited = bfs(j, g, length, visited);
         }
       }
     }
@@ -27,8 +27,8 @@ function int main() {
   n = readint();
   var int m;
   m = readint();
-  var int[][] g;
-  g = int[n][n];
+  var int[] g;
+  g = mallocint(n * n);
 
   var int j;
   var int k;
@@ -37,12 +37,12 @@ function int main() {
   for (i < m; i += 1) {
     j = readint();
     k = readint();
-    g[j][k] = 1;
-    g[k][j] = 1;
+    g[(j * n) + k] = 1;
+    g[(k * n) + j] = 1;
   }
 
   var int[] visited;
-  visited = int[n];
+  visited = mallocint(n);
   i = 0;
   for (i <= n; i += 1) {
     visited[i] = 0;
@@ -50,7 +50,7 @@ function int main() {
 
   var int[] visited2;
   visited[0] = 1;
-  visited2 = bfs(0, g, visited);
+  visited2 = bfs(0, g, n, visited);
 
   var int visited_all;
   visited_all = 1;
@@ -62,9 +62,9 @@ function int main() {
   }
 
   if (visited_all == 1) {
-    writestr("ANO");
+    writestrnl("ANO");
   } else {
-    writestr("NIE");
+    writestrnl("NIE");
   }
   return 0;
 }
