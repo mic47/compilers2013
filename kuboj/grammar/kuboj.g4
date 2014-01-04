@@ -25,14 +25,18 @@ block: LBRACE (statement)* RBRACE;
 
 assignment: (IDENTIFIER | IDENTIFIER index_to_array) op=(EQ | PLUSEQ | MINUSEQ) expression;    
     
-struct_for: FOR LPAR condition SEMICOLON assignment RPAR block;
+struct_for: FOR LPAR expression op=(DOUBLEEQ | NOTEQ | LESSEQ | GREATEREQ | LESS | GREATER) expression SEMICOLON assignment RPAR block;
     
-struct_if: IF LPAR condition RPAR block (ELSE block)?;
+struct_if: IF LPAR expression op=(DOUBLEEQ | NOTEQ | LESSEQ | GREATEREQ | LESS | GREATER) expression RPAR block (ELSE block)?;
 
 expression: op=(SUB | ADD) expression            # Una
           | expression op=(DIV | MUL) expression # Mul
           | expression op=(ADD | SUB) expression # Add
           | expression op=MOD expression         # Mod
+          | op=NOT expression                    # Not
+          | expression op=AND expression         # And
+          | expression op=OR expression          # Or
+          | expression op=(DOUBLEEQ | NOTEQ | LESSEQ | GREATEREQ | LESS | GREATER) expression # Cond
           | LPAR expression RPAR                 # Par
           | IDENTIFIER index_to_array            # Ind
           | function_call                        # Func
@@ -48,8 +52,6 @@ function_call: IDENTIFIER LPAR argument_list RPAR;
 parameter_list: (type IDENTIFIER (COMMA type IDENTIFIER)*)?;
 
 argument_list: (expression (COMMA expression)*)?;
-
-condition: expression op=(DOUBLEEQ | NOTEQ | LESSEQ | GREATEREQ | LESS | GREATER) expression;
            
 TYPE_INT: 'int';
 TYPE_PINT: 'int[]';
@@ -81,6 +83,9 @@ DIV: '/';
 ADD: '+';
 SUB: '-';
 MOD: '%';
+NOT: '!';
+AND: '&&';
+OR: '||';
 MAIN: 'main';
 INT: [0-9]+;
 IDENTIFIER: [a-zA-Z_][a-zA-Z0-9_]*;

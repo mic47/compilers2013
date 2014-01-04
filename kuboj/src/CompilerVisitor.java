@@ -269,6 +269,19 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		logger.untab();
 		return code;
 	}
+	
+	@Override
+	public CodeFragment visitNot(kubojParser.NotContext ctx) {
+		logger.tab(ctx);
+		CodeFragment code = generateUnaryOperatorCodeFragment(
+                visit(ctx.expression()),
+                ctx.op.getType()
+        );
+		
+		logger.logCode(code);
+		logger.untab();
+		return code;
+	}
 
 	@Override
 	public CodeFragment visitMul(kubojParser.MulContext ctx) {
@@ -296,7 +309,35 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		logger.logCode(code);
 		logger.untab();
 		return code;
-	}        
+	} 
+	
+	@Override
+	public CodeFragment visitAnd(kubojParser.AndContext ctx) {
+		logger.tab(ctx);
+		CodeFragment code = generateBinaryOperatorCodeFragment(
+                visit(ctx.expression(0)),
+                visit(ctx.expression(1)),
+                ctx.op.getType()
+        );
+		
+		logger.logCode(code);
+		logger.untab();
+		return code;
+	}      
+	
+	@Override
+	public CodeFragment visitOr(kubojParser.OrContext ctx) {
+		logger.tab(ctx);
+		CodeFragment code = generateBinaryOperatorCodeFragment(
+                visit(ctx.expression(0)),
+                visit(ctx.expression(1)),
+                ctx.op.getType()
+        );
+		
+		logger.logCode(code);
+		logger.untab();
+		return code;
+	}      
 
 	@Override
 	public CodeFragment visitMod(kubojParser.ModContext ctx) {
@@ -379,14 +420,14 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		case kubojParser.SUB:
 			code_stub = "<ret> = sub i32 0, <input>\n";
 			break;
-//		case kubojParser.NOT:
-//			ST temp = new ST(
-//					"<r> = icmp eq i32 \\<input>, 0\n" + 
-//							"\\<ret> = zext i1 <r> to i32\n"
-//					);
-//			temp.add("r", this.generateNewRegister());
-//			code_stub = temp.render();
-//			break;
+		case kubojParser.NOT:
+			ST temp = new ST(
+					"<r> = icmp eq i32 \\<input>, 0\n" + 
+							"\\<ret> = zext i1 <r> to i32\n"
+					);
+			temp.add("r", this.generateNewRegister());
+			code_stub = temp.render();
+			break;
 		}
 		ST template = new ST("<code>" + code_stub);
 		String ret_register = this.generateNewRegister();
@@ -419,20 +460,20 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		case kubojParser.MOD:
 			instruction = "srem";
 			break;
-//		case kubojParser.AND:
-//			instruction = "and";
-//		case kubojParser.OR:
-//			ST temp = new ST(
-//					"<r1> = icmp ne i32 \\<left_val>, 0\n" +
-//							"<r2> = icmp ne i32 \\<right_val>, 0\n" +
-//							"<r3> = \\<instruction> i1 <r1>, <r2>\n" +
-//							"\\<ret> = zext i1 <r3> to i32\n"
-//					);
-//			temp.add("r1", this.generateNewRegister());
-//			temp.add("r2", this.generateNewRegister());
-//			temp.add("r3", this.generateNewRegister());
-//			code_stub = temp.render();
-//			break;
+		case kubojParser.AND:
+			instruction = "and";
+		case kubojParser.OR:
+			ST temp = new ST(
+					"<r1> = icmp ne i32 \\<left_val>, 0\n" +
+							"<r2> = icmp ne i32 \\<right_val>, 0\n" +
+							"<r3> = \\<instruction> i1 <r1>, <r2>\n" +
+							"\\<ret> = zext i1 <r3> to i32\n"
+					);
+			temp.add("r1", this.generateNewRegister());
+			temp.add("r2", this.generateNewRegister());
+			temp.add("r3", this.generateNewRegister());
+			code_stub = temp.render();
+			break;
 		}
 		ST template = new ST(
 				"<left_code>" + 
