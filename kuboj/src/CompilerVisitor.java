@@ -180,11 +180,6 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 	}
 
 	@Override
-	public CodeFragment visitFunc(kubojParser.FuncContext ctx) {
-		return visit(ctx.function_call());
-	}
-
-	@Override
 	public CodeFragment visitFunction_call(kubojParser.Function_callContext ctx) {
 		logger.tab(ctx);
 		CodeFragment code = new CodeFragment();
@@ -257,6 +252,48 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		return code;
 	}
 
+	@Override
+	public CodeFragment visitInd(kubojParser.IndContext ctx) {
+		System.out.println("Ind");
+		// TODO
+		return new CodeFragment();
+	}    
+
+	@Override
+	public CodeFragment visitVar(kubojParser.VarContext ctx) {
+		logger.tab(ctx);
+		CodeFragment code = new CodeFragment();
+		
+		String identifier = ctx.IDENTIFIER().getText();
+		Variable variable = null;
+		if (!variables.containsKey(identifier)) {
+			logger.error("Unknown identifier '%s'", identifier);
+		} else {
+			variable = variables.get(identifier);
+		}
+		
+		if (variable.isInt()) {
+			String register = generateNewRegister();
+			code.addCode(String.format(
+					"%s = load i32* %s\n",
+					register,
+					variable.getRegister()
+			));
+			code.setRegister(register);
+		} else if (variable.isPInt()) {
+			// TODO
+		}
+		
+		logger.logCode(code);
+		logger.untab();
+		return code;
+	}
+	
+	@Override
+	public CodeFragment visitFunc(kubojParser.FuncContext ctx) {
+		return visit(ctx.function_call());
+	}
+	
 	@Override
 	public CodeFragment visitUna(kubojParser.UnaContext ctx) {
 		logger.tab(ctx);
@@ -352,47 +389,10 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		logger.untab();
 		return code;
 	}
-
+	
 	@Override
 	public CodeFragment visitPar(kubojParser.ParContext ctx) {
         return visit(ctx.expression());
-	}
-
-	@Override
-	public CodeFragment visitInd(kubojParser.IndContext ctx) {
-		System.out.println("Ind");
-		// TODO
-		return new CodeFragment();
-	}    
-
-	@Override
-	public CodeFragment visitVar(kubojParser.VarContext ctx) {
-		logger.tab(ctx);
-		CodeFragment code = new CodeFragment();
-		
-		String identifier = ctx.IDENTIFIER().getText();
-		Variable variable = null;
-		if (!variables.containsKey(identifier)) {
-			logger.error("Unknown identifier '%s'", identifier);
-		} else {
-			variable = variables.get(identifier);
-		}
-		
-		if (variable.isInt()) {
-			String register = generateNewRegister();
-			code.addCode(String.format(
-					"%s = load i32* %s\n",
-					register,
-					variable.getRegister()
-			));
-			code.setRegister(register);
-		} else if (variable.isPInt()) {
-			// TODO
-		}
-		
-		logger.logCode(code);
-		logger.untab();
-		return code;
 	}
 
 	@Override
