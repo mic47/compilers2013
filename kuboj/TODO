@@ -3,13 +3,8 @@ general
   - for
   - if
   - un/bin operations
-  - variable declarations (int, string)
-  - arrays
-  - 2d arrays
+  - variable declarations (int, int[])
   - function declarations
-  - functions returning 2d arrays
 
 library.c
-  - remove writestr2
   - add readint function
-  - add length([]) function
