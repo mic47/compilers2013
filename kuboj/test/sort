@@ -9,7 +9,7 @@ function int[] quicksort(int[] array, int length) {
     var int num_of_less_than_pivot;
     num_of_less_than_pivot = 0;
     var int j;
-    for (j < length; j += 1) {
+    for (j < length; j = j + 1) {
       if (array[j] < pivot) {
         num_of_less_than_pivot += 1;
       }
@@ -26,7 +26,7 @@ function int[] quicksort(int[] array, int length) {
     greater_length = 0;
 
     j = 0;
-    for (j < length; j += 1) {
+    for (j < length; j = j + 1) {
       if (array[j] < pivot) {
         less[less_length] = array[j];
         less_length += 1;
@@ -44,12 +44,12 @@ function int[] quicksort(int[] array, int length) {
     var int[] new_array;
     new_array = mallocint(length);
     j = 0;
-    for (j < less_length; j += 1) {
+    for (j < less_length; j = j + 1) {
       new_array[j] = sorted_less[j];
     }
     new_array[less_length] = pivot;
     j = 0;
-    for (j < greater_length; j += 1) {
+    for (j < greater_length; j = j + 1) {
       new_array[j + less_length] = sorted_greater[j];
     }
 
@@ -65,7 +65,7 @@ function int main() {
   var int[] a;
   a = mallocint(n);
   var int i;  
-  for (i < n; i += 1) {
+  for (i < n; i = i + 1) {
     a[i] = readint();
   }
 
@@ -73,7 +73,7 @@ function int main() {
   sorted = quicksort(a, n);
 
   i = 0;
-  for (i < n; i += 1) {
+  for (i < n; i = i + 1) {
     writeintnl(sorted[i]);
   }
   return 0;

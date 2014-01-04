@@ -23,7 +23,7 @@ function_body: LBRACE (statement)* RETURN expression SEMICOLON RBRACE;
 
 block: LBRACE (statement)* RBRACE;
 
-assignment: (IDENTIFIER | IDENTIFIER index_to_array) op=(EQ | PLUSEQ | MINUSEQ) expression;    
+assignment: (IDENTIFIER | IDENTIFIER index_to_array) EQ expression;    
     
 struct_for: FOR LPAR expression SEMICOLON assignment RPAR block;
     
@@ -70,8 +70,6 @@ RBRACE: '}';
 LBRACK: '[';
 RBRACK: ']';
 EQ: '=';
-PLUSEQ: '+=';
-MINUSEQ: '-=';
 DOUBLEEQ: '==';
 NOTEQ: '!=';
 LESSEQ: '<=';
