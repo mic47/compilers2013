@@ -290,6 +290,111 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 	}
 	
 	@Override
+	public CodeFragment visitStruct_if(kubojParser.Struct_ifContext ctx) {
+		logger.tab(ctx);
+		CodeFragment code = new CodeFragment();
+		
+        CodeFragment condition = visit(ctx.expression());
+        CodeFragment statement_true = visit(ctx.block(0));
+        CodeFragment statement_false = visit(ctx.block(1));
+
+        ST template = new ST(
+                "<condition_code>" + 
+                "<cmp_reg> = icmp ne i32 <con_reg>, 0\n" + 
+                "br i1 <cmp_reg>, label %<block_true>, label %<block_false>\n" +
+                "<block_true>:\n" +
+                "<statement_true_code>" +
+                "br label %<block_end>\n" + 
+                "<block_false>:\n" + 
+                "<statement_false_code>" +
+                "br label %<block_end>\n" + 
+                "<block_end>:\n" +
+                Utils.addTab("<ret> = add i32 0, 0\n", CodeFragment.TAB_WIDTH)
+        );
+        template.add("condition_code", condition);
+        template.add("statement_true_code", Utils.addTab(statement_true.toString(), CodeFragment.TAB_WIDTH));
+        template.add("statement_false_code", Utils.addTab(statement_false.toString(), CodeFragment.TAB_WIDTH));
+        template.add("cmp_reg", this.generateNewRegister());
+        template.add("con_reg", condition.getRegister());
+        template.add("block_true", this.generateNewLabel());
+        template.add("block_false", this.generateNewLabel());
+        template.add("block_end", this.generateNewLabel());
+        String return_register = generateNewRegister();
+        template.add("ret", return_register);
+        
+        code.setRegister(return_register);
+        code.addCode(template.render());
+
+		logger.untab();
+		return code;
+	}
+	
+	@Override
+	public CodeFragment visitStruct_for(kubojParser.Struct_forContext ctx) {
+		logger.tab(ctx);
+		CodeFragment code = new CodeFragment();
+		
+		// TODO
+		
+		logger.logCode(code);
+		logger.untab();
+		return code;
+	}
+	
+    @Override
+    public CodeFragment visitComp(kubojParser.CompContext ctx) {
+    	Integer operator = ctx.op.getType();
+    	CodeFragment left = visit(ctx.expression(0));
+    	CodeFragment right = visit(ctx.expression(1));
+
+        String code_stub = "<ret> = icmp <cond> i32 <left_val>, <right_val>\n" +
+        				   "<ret2> = zext i1 <ret> to i32";
+        String cond = "";
+        
+        switch (operator) {
+                case kubojParser.LESS:
+                    cond = "ult";
+                    break;
+                case kubojParser.LESSEQ:
+                	cond = "ule";
+                    break;
+                case kubojParser.GREATER:
+                	cond = "ugt";
+                    break;
+                case kubojParser.GREATEREQ:
+                	cond = "uge";
+                    break;
+                case kubojParser.DOUBLEEQ:
+                	cond = "eq";
+                    break;                            
+                case kubojParser.NOTEQ:
+                	cond = "ne";
+                    break;
+        }
+        
+        ST template = new ST(
+                "<left_code>" + 
+                "<right_code>" + 
+                code_stub
+        );
+        template.add("left_code", left);
+        template.add("right_code", right);
+        template.add("cond", cond);
+        template.add("left_val", left.getRegister());
+        template.add("right_val", right.getRegister());
+        String ret_register = this.generateNewRegister();
+        String ret2_register = this.generateNewRegister();
+        template.add("ret", ret_register);
+        template.add("ret2", ret2_register);
+        
+        CodeFragment ret = new CodeFragment();
+        ret.setRegister(ret2_register);
+        ret.addCode(template.render());
+        return ret;
+        		
+    }
+	
+	@Override
 	public CodeFragment visitFunc(kubojParser.FuncContext ctx) {
 		return visit(ctx.function_call());
 	}
@@ -393,6 +498,22 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 	@Override
 	public CodeFragment visitPar(kubojParser.ParContext ctx) {
         return visit(ctx.expression());
+	}
+	
+	@Override
+	public CodeFragment visitBlock(kubojParser.BlockContext ctx) {
+		logger.tab(ctx);
+		CodeFragment code = new CodeFragment();
+
+		for (kubojParser.StatementContext s: ctx.statement()) {
+			CodeFragment statement = visit(s);
+			code.addCode(statement);
+			code.setRegister(statement.getRegister()); // ?
+		}
+		
+		logger.logCode(code);
+		logger.untab();
+		return code;		
 	}
 
 	@Override

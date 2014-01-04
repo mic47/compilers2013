@@ -104,6 +104,13 @@ public class Utils {
 	
 	public static String addTab(String s, int tabLength) {
 		String tab = getTab(tabLength);
-		return tab + s;
+		StringBuilder sb = new StringBuilder();
+		
+		String[] lines = s.split("\n");
+		for (String line : lines) {
+			sb.append(tab + line + "\n");
+		}
+		
+		return sb.toString();
 	}
 }

@@ -36,7 +36,7 @@ expression: op=(SUB | ADD) expression            # Una
           | op=NOT expression                    # Not
           | expression op=AND expression         # And
           | expression op=OR expression          # Or
-          | expression op=(DOUBLEEQ | NOTEQ | LESSEQ | GREATEREQ | LESS | GREATER) expression # Cond
+          | expression op=(DOUBLEEQ | NOTEQ | LESSEQ | GREATEREQ | LESS | GREATER) expression # Comp
           | LPAR expression RPAR                 # Par
           | IDENTIFIER index_to_array            # Ind
           | function_call                        # Func
