@@ -11,8 +11,16 @@ int writestr(char *str) {
     return 0;
 }
 
-int writestrint(char *str, int a) {
-    printf("%s\n", str);
+int writeintnl(int a) {
     printf("%d\n", a);
     return 0;
+}
+
+int writestrnl(char *str) {
+    printf("%s\n", str);
+    return 0;
+}
+
+int* mallocint(int n) {
+    return (int *) malloc(sizeof(int) * n);
 }
