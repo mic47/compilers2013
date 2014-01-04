@@ -32,7 +32,7 @@ struct_if: IF LPAR condition RPAR block (ELSE block)?;
 expression: op=(SUB | ADD) expression            # Una
           | expression op=(DIV | MUL) expression # Mul
           | expression op=(ADD | SUB) expression # Add
-          | expression MOD expression            # Mod
+          | expression op=MOD expression         # Mod
           | LPAR expression RPAR                 # Par
           | IDENTIFIER index_to_array            # Ind
           | function_call                        # Func

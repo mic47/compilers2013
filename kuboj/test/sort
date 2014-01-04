@@ -1,7 +1,7 @@
 function int[] quicksort(int[] array, int length) {
   var int[] retval;
 
-  if (length(array) <= 1) {
+  if (length <= 1) {
     retval = array;
   } else {
     var int pivot;

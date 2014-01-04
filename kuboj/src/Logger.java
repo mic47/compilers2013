@@ -8,19 +8,12 @@ public class Logger {
 	private PrintWriter out = new PrintWriter(System.out, true);
 	private PrintWriter err = new PrintWriter(System.err, true);
 	
-	public Logger(ParserRuleContext ctx) {
-		String callingFunction = Thread.currentThread().getStackTrace()[2].getMethodName();
-		log(String.format("%s -> %s", callingFunction, ctx.getText()));
-		tab();
+	public Logger() {
 	}
 	
-	public void writeFunction(ParserRuleContext ctx) {
-		String callingFunction = Thread.currentThread().getStackTrace()[2].getMethodName();
-		log(String.format("%s -> %s", callingFunction, ctx.getText()));		
-	}
-	
-	public void tab() {
+	public void tab(ParserRuleContext ctx) {
 		current_tab += TAB_WIDTH;
+		writeFunction(ctx);
 	}
 	
 	public void untab() {
@@ -42,6 +35,11 @@ public class Logger {
 		String codeStr = code.code.replace("%", "%%");
 		log(codeStr.substring(0, codeStr.length() - 1));
 		log("------code------");
+	}
+	
+	public void writeFunction(ParserRuleContext ctx) {
+		String callingFunction = Thread.currentThread().getStackTrace()[3].getMethodName();
+		log(String.format("%s -> %s", callingFunction, ctx.getText().replace("%", "%%")));		
 	}
 	
 	private String getTab() {

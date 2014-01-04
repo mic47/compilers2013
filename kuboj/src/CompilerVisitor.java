@@ -11,7 +11,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 	private Map<String, Variable> variables = new HashMap<String, Variable>();
 	private int labelIndex = 0;
 	private int registerIndex = 0;
-	private Logger logger;
+	private Logger logger = new Logger();
 
 	private String generateNewLabel() {
 		return String.format("L%d", this.labelIndex++);
@@ -23,7 +23,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 	@Override
 	public CodeFragment visitInit(kubojParser.InitContext ctx) {
-		logger = new Logger(ctx);
+		logger.writeFunction(ctx);
 		
 		functions.put("writeint", new Function("writeint", "i32", new ArrayList<String>(Arrays.asList("i32"))));
 		functions.put("writestr", new Function("writestr", "i32", new ArrayList<String>(Arrays.asList("i8*"))));
@@ -56,8 +56,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 	@Override
 	public CodeFragment visitDeclaration_main_function(kubojParser.Declaration_main_functionContext ctx) {
-		logger.writeFunction(ctx);
-		logger.tab();
+		logger.tab(ctx);
 		CodeFragment body = visit(ctx.function_body());
 
 		ST template = new ST( 
@@ -86,8 +85,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 	@Override
 	public CodeFragment visitFunction_body(kubojParser.Function_bodyContext ctx) {
-		logger.writeFunction(ctx);
-		logger.tab();
+		logger.tab(ctx);
 		CodeFragment statements = new CodeFragment();
 
 		for (kubojParser.StatementContext s: ctx.statement()) {
@@ -122,8 +120,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 	
 	@Override
 	public CodeFragment visitDeclaration_var(kubojParser.Declaration_varContext ctx) {
-		logger.writeFunction(ctx);
-		logger.tab();
+		logger.tab(ctx);
 		CodeFragment code = new CodeFragment();
 		
 		String identifier = ctx.IDENTIFIER().getText();
@@ -155,7 +152,9 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 	@Override
 	public CodeFragment visitStr(kubojParser.StrContext ctx) {
+		logger.tab(ctx);
 		CodeFragment code = new CodeFragment();
+		
 		String s = ctx.STRING().getText();
 		s = Utils.unescapeJavaString(s.substring(1, s.length() - 1)); // remove double quotes
 		String hexString = Utils.stringToHex(s);
@@ -175,6 +174,8 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		code.setRegister(reg2);
 		code.addCode(template.render());
 
+		logger.logCode(code);
+		logger.untab();
 		return code;
 	}
 
@@ -185,6 +186,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 	@Override
 	public CodeFragment visitFunction_call(kubojParser.Function_callContext ctx) {
+		logger.tab(ctx);
 		CodeFragment code = new CodeFragment();
 
 		String functionName = ctx.IDENTIFIER().getText();
@@ -200,11 +202,14 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		code.addCode(functions.get(functionName).getCallInstruction(retvalRegister, argumentList.getRegisters()));
 		code.setRegister(retvalRegister);
 
+		logger.logCode(code);
+		logger.untab();
 		return code;
 	}        
 
 	@Override
 	public CodeFragment visitArgument_list(kubojParser.Argument_listContext ctx) {
+		logger.tab(ctx);
 		ArgumentListCodeFragment code = new ArgumentListCodeFragment();
 
 		for (kubojParser.ExpressionContext e : ctx.expression()) {
@@ -213,13 +218,14 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 			code.addRegister(expression.getRegister());
 		}
 
+		logger.logCode(code);
+		logger.untab();
 		return (CodeFragment)code;
 	}
 	
 	@Override
 	public CodeFragment visitAssignment(kubojParser.AssignmentContext ctx) {
-		logger.writeFunction(ctx);
-		logger.tab();
+		logger.tab(ctx);
 		CodeFragment code = new CodeFragment();
 		
 		String identifier = ctx.IDENTIFIER().getText();
@@ -253,37 +259,62 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 	@Override
 	public CodeFragment visitUna(kubojParser.UnaContext ctx) {
-		System.out.println("Una");
-		// TODO
-		return new CodeFragment();
+		logger.tab(ctx);
+		CodeFragment code = generateUnaryOperatorCodeFragment(
+                visit(ctx.expression()),
+                ctx.op.getType()
+        );
+		
+		logger.logCode(code);
+		logger.untab();
+		return code;
 	}
 
 	@Override
 	public CodeFragment visitMul(kubojParser.MulContext ctx) {
-		System.out.println("Mul");
-		// TODO
-		return new CodeFragment();
+		logger.tab(ctx);
+		CodeFragment code = generateBinaryOperatorCodeFragment(
+                visit(ctx.expression(0)),
+                visit(ctx.expression(1)),
+                ctx.op.getType()
+        );
+		
+		logger.logCode(code);
+		logger.untab();
+		return code;
 	}
 
 	@Override
 	public CodeFragment visitAdd(kubojParser.AddContext ctx) {
-		System.out.println("Add");
-		// TODO
-		return new CodeFragment();
+		logger.tab(ctx);
+		CodeFragment code = generateBinaryOperatorCodeFragment(
+                visit(ctx.expression(0)),
+                visit(ctx.expression(1)),
+                ctx.op.getType()
+        );
+		
+		logger.logCode(code);
+		logger.untab();
+		return code;
 	}        
 
 	@Override
 	public CodeFragment visitMod(kubojParser.ModContext ctx) {
-		System.out.println("Mod");
-		// TODO
-		return new CodeFragment();
+		logger.tab(ctx);
+		CodeFragment code = generateBinaryOperatorCodeFragment(
+                visit(ctx.expression(0)),
+                visit(ctx.expression(1)),
+                ctx.op.getType()
+        );
+		
+		logger.logCode(code);
+		logger.untab();
+		return code;
 	}
 
 	@Override
 	public CodeFragment visitPar(kubojParser.ParContext ctx) {
-		System.out.println("Par");
-		// TODO
-		return new CodeFragment();
+        return visit(ctx.expression());
 	}
 
 	@Override
@@ -295,8 +326,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 	@Override
 	public CodeFragment visitVar(kubojParser.VarContext ctx) {
-		logger.writeFunction(ctx);
-		logger.tab();
+		logger.tab(ctx);
 		CodeFragment code = new CodeFragment();
 		
 		String identifier = ctx.IDENTIFIER().getText();
@@ -326,8 +356,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 	@Override
 	public CodeFragment visitInt(kubojParser.IntContext ctx) {
-		logger.writeFunction(ctx);
-		logger.tab();
+		logger.tab(ctx);
 		CodeFragment code = new CodeFragment();
 		
         String value = ctx.INT().getText();
@@ -338,6 +367,91 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
         logger.logCode(code);
         logger.untab();
         return code;
+	}
+	
+	public CodeFragment generateUnaryOperatorCodeFragment(CodeFragment code, Integer operator) {
+		if (operator == kubojParser.ADD) {
+			return code;
+		}
+
+		String code_stub = "";
+		switch(operator) {
+		case kubojParser.SUB:
+			code_stub = "<ret> = sub i32 0, <input>\n";
+			break;
+//		case kubojParser.NOT:
+//			ST temp = new ST(
+//					"<r> = icmp eq i32 \\<input>, 0\n" + 
+//							"\\<ret> = zext i1 <r> to i32\n"
+//					);
+//			temp.add("r", this.generateNewRegister());
+//			code_stub = temp.render();
+//			break;
+		}
+		ST template = new ST("<code>" + code_stub);
+		String ret_register = this.generateNewRegister();
+		template.add("code", code);
+		template.add("ret", ret_register);
+		template.add("input", code.getRegister());
+
+		CodeFragment ret = new CodeFragment();        
+		ret.setRegister(ret_register);
+		ret.addCode(template.render());
+		return ret;
+	}
+	
+	public CodeFragment generateBinaryOperatorCodeFragment(CodeFragment left, CodeFragment right, Integer operator) {
+		String code_stub = "<ret> = <instruction> i32 <left_val>, <right_val>\n";
+		String instruction = "or";
+		switch (operator) {
+		case kubojParser.ADD:
+			instruction = "add";
+			break;
+		case kubojParser.SUB:
+			instruction = "sub";
+			break;
+		case kubojParser.MUL:
+			instruction = "mul";
+			break;
+		case kubojParser.DIV:
+			instruction = "sdiv";
+			break;
+		case kubojParser.MOD:
+			instruction = "srem";
+			break;
+//		case kubojParser.AND:
+//			instruction = "and";
+//		case kubojParser.OR:
+//			ST temp = new ST(
+//					"<r1> = icmp ne i32 \\<left_val>, 0\n" +
+//							"<r2> = icmp ne i32 \\<right_val>, 0\n" +
+//							"<r3> = \\<instruction> i1 <r1>, <r2>\n" +
+//							"\\<ret> = zext i1 <r3> to i32\n"
+//					);
+//			temp.add("r1", this.generateNewRegister());
+//			temp.add("r2", this.generateNewRegister());
+//			temp.add("r3", this.generateNewRegister());
+//			code_stub = temp.render();
+//			break;
+		}
+		ST template = new ST(
+				"<left_code>" + 
+						"<right_code>" + 
+						code_stub
+				);
+		template.add("left_code", left);
+		template.add("right_code", right);
+		template.add("instruction", instruction);
+		template.add("left_val", left.getRegister());
+		template.add("right_val", right.getRegister());
+		String ret_register = this.generateNewRegister();
+		template.add("ret", ret_register);
+
+		CodeFragment ret = new CodeFragment();
+		ret.setRegister(ret_register);
+		ret.addCode(template.render());
+		return ret;
+
 	}
 	
 	@Override
