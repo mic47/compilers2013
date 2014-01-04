@@ -1,4 +1,4 @@
-function int[] quicksort(array) {
+function int[] quicksort(int[] array) {
   var int[] retval;
 
   if (length(array) <= 1) {

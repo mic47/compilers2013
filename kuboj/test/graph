@@ -1,4 +1,4 @@
-function int[] bfs(v, g, visited) {
+function int[] bfs(int v, int g, int[] visited) {
   var int[] retval;
 
   if (visited[v] == 1) {

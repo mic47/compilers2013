@@ -21,7 +21,7 @@ type: simple_type
 
 declaration_var: VAR type IDENTIFIER;
 
-declaration_function: FUNCTION type IDENTIFIER LPAR argument_list RPAR function_body;
+declaration_function: FUNCTION type IDENTIFIER LPAR parameter_list RPAR function_body;
 
 declaration_main_function: FUNCTION TYPE_INT MAIN LPAR RPAR function_body;
 
@@ -56,6 +56,8 @@ expression: op=(SUB | ADD) expression            # Una
 index_to_array: LBRACK expression RBRACK (LBRACK expression RBRACK)?;
 
 function_call: IDENTIFIER LPAR argument_list RPAR;
+
+parameter_list: (type IDENTIFIER (COMMA type IDENTIFIER)*)?;
 
 argument_list: (expression (COMMA expression)*)?;
 

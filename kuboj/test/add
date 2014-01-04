@@ -1,4 +1,4 @@
-function int plus(a, b) {
+function int plus(int a, int b) {
   return a + b;
 }
 
