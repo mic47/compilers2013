@@ -2,7 +2,6 @@ general
   - int[] assignments
   - function declarations
   - for
-  - if
 
 library.c
   - add readint function
