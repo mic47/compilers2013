@@ -15,7 +15,8 @@ function int[] bfs(int v, int g, int[] visited) {
           visited = bfs(j, g, visited);
         }
       }
-    }  
+    }
+    retval = visited;
   }
 
   return retval;
