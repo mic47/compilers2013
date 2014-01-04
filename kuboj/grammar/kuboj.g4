@@ -25,9 +25,9 @@ block: LBRACE (statement)* RBRACE;
 
 assignment: (IDENTIFIER | IDENTIFIER index_to_array) op=(EQ | PLUSEQ | MINUSEQ) expression;    
     
-struct_for: FOR LPAR expression op=(DOUBLEEQ | NOTEQ | LESSEQ | GREATEREQ | LESS | GREATER) expression SEMICOLON assignment RPAR block;
+struct_for: FOR LPAR expression SEMICOLON assignment RPAR block;
     
-struct_if: IF LPAR expression op=(DOUBLEEQ | NOTEQ | LESSEQ | GREATEREQ | LESS | GREATER) expression RPAR block (ELSE block)?;
+struct_if: IF LPAR expression RPAR block (ELSE block)?;
 
 expression: op=(SUB | ADD) expression            # Una
           | expression op=(DIV | MUL) expression # Mul
