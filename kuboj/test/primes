@@ -14,7 +14,8 @@ function int main() {
 
   i = 2;
   for (i <= n; i = i + 1) {
-    for (j <= n; j = j + 1) {
+    j = 2;
+    for (j < i; j = j + 1) {
       if (i % j == 0) {
         is_prime[i] = 0;
       }
