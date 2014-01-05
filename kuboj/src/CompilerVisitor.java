@@ -452,8 +452,9 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		
 		String register = generateNewRegister();
 		code.addCode(String.format(
-				"%s = load i32* %s\n",
+				"%s = load %s* %s\n",
 				register,
+				variable.getLlvmType(),
 				variable.getRegister()
 		));
 		code.setRegister(register);
