@@ -1,6 +1,6 @@
 grammar kuboj;
 
-init: (declaration_function)* declaration_main_function;
+init: (import_function)* (declaration_function)* declaration_main_function;
 
 statement: declaration_var SEMICOLON      # StDec
          | assignment SEMICOLON           # StAss  
@@ -18,6 +18,8 @@ declaration_var: VAR type IDENTIFIER;
 declaration_function: FUNCTION type IDENTIFIER LPAR parameter_list RPAR function_body;
 
 declaration_main_function: FUNCTION TYPE_INT MAIN LPAR RPAR function_body;
+
+import_function: IMPORT type IDENTIFIER LPAR (type (COMMA type)*)? RPAR SEMICOLON;
 
 function_body: LBRACE (statement)* RETURN expression SEMICOLON RBRACE;
 
@@ -53,6 +55,7 @@ parameter_list: (type IDENTIFIER (COMMA type IDENTIFIER)*)?;
 
 argument_list: (expression (COMMA expression)*)?;
            
+IMPORT: 'import';
 TYPE_INT: 'int';
 TYPE_PINT: 'int[]';
 SEMICOLON: ';';
