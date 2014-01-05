@@ -47,5 +47,15 @@ abstract public class Variable {
 		return getMyType().equals(MY_PINT);
 	}
 	
+	public static String myTypeToLlvmType(String type) {
+		if (type.equals(MY_INT)) {
+			return LLVM_INT;
+		} else if (type.equals(MY_PINT)) {
+			return LLVM_PINT;
+		} else {
+			return null;
+		}
+	}
+	
 	abstract protected void setTypes();
 }

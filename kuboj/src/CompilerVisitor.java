@@ -24,21 +24,19 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 	@Override
 	public CodeFragment visitInit(kubojParser.InitContext ctx) {
 		logger.writeFunction(ctx);
-		
-		functions.put("writeint", new Function("writeint", "i32", new ArrayList<String>(Arrays.asList("i32"))));
-		functions.put("writestr", new Function("writestr", "i32", new ArrayList<String>(Arrays.asList("i8*"))));
-		functions.put("writeintnl", new Function("writeintnl", "i32", new ArrayList<String>(Arrays.asList("i32"))));
-		functions.put("writestrnl", new Function("writestrnl", "i32", new ArrayList<String>(Arrays.asList("i8*"))));
-		functions.put("readint", new Function("readint", "i32", new ArrayList<String>()));
-		functions.put("mallocint", new Function("mallocint", "i32*", new ArrayList<String>(Arrays.asList("i32"))));
-
 		CodeFragment code = new CodeFragment();
-		for (Map.Entry<String, Function> e : functions.entrySet()) {
-			code.addCode(e.getValue().getLlvmDeclarationString());
+		
+		for (kubojParser.Import_functionContext c : ctx.import_function()) {
+			CodeFragment import_function = visit(c);
+			code.addCode(import_function);
+			code.setRegister(import_function.getRegister());
 		}
-		code.addCode("\n");
+		
+		if (functions.size() > 0) {
+			code.addCode("\n");
+		}
 
-		for (kubojParser.Declaration_functionContext s: ctx.declaration_function()) {
+		for (kubojParser.Declaration_functionContext s : ctx.declaration_function()) {
 			CodeFragment declaration_function = visit(s);
 			code.addCode(declaration_function);
 			code.setRegister(declaration_function.getRegister()); // ?
@@ -49,6 +47,36 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		code.addCode(declaration_main_function);
 		code.setRegister(declaration_main_function.getRegister()); // ?
 
+		return code;
+	}
+	
+	@Override
+	public CodeFragment visitImport_function(kubojParser.Import_functionContext ctx) {
+		logger.tab(ctx);
+		CodeFragment code = new CodeFragment();
+
+		String returnType = Variable.myTypeToLlvmType(ctx.type(0).getText());
+		String identifier = ctx.IDENTIFIER().getText();
+		ArrayList<String> parameterTypes = new ArrayList<String>();
+		
+		if (ctx.type().size() > 1) {
+			for (int i = 1; i < ctx.type().size(); i++) {
+				parameterTypes.add(Variable.myTypeToLlvmType(ctx.type(i - 1).getText()));
+			}
+		}
+		
+		logger.log("trying to import function '%s %s' ", returnType, identifier);
+		
+		if (functions.containsKey(identifier)) {
+			error += String.format("Error: function '%s' already defined\n", identifier);
+		} else {
+			Function f = new Function(identifier, returnType, parameterTypes);
+			functions.put(identifier, f);
+			code.addCode(f.getLlvmDeclarationString());
+		}
+		
+		logger.logCode(code);
+		logger.untab();
 		return code;
 	}
 
