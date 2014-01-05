@@ -18,16 +18,22 @@ public class Compiler {
         ParseTree tree = parser.init();
         
         CompilerVisitor eval = new CompilerVisitor();
-        CodeFragment code = eval.visit(tree);
         
-        if (eval.error.equals("")) {
-            System.out.println(String.format("Writing to file '%s'", args[1]));
-            writer.write(code.toString());
-        } else {
+        try {
+	        CodeFragment code = eval.visit(tree);
+	        
+	        if (eval.error.equals("")) {
+	            System.out.println(String.format("Writing to file '%s'", args[1]));
+	            writer.write(code.toString());
+	        } else {
+	        	System.err.println(eval.error);
+	        	Runtime.getRuntime().exit(1);
+	        }
+        } catch (Exception e) {
         	System.err.println(eval.error);
         	Runtime.getRuntime().exit(1);
+        } finally {
+        	writer.close();        	
         }
-        
-        writer.close();
     }
 }
