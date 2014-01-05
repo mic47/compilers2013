@@ -14,5 +14,4 @@ public class ArgumentListCodeFragment extends CodeFragment {
 	public ArrayList<String> getRegisters() {
 		return this.registers;
 	}
-
 }

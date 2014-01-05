@@ -44,4 +44,17 @@ public class Function {
 		}
 		return String.format("declare %s @%s(%s)\n", returnType, name, paramString.toString());
 	}
+	
+	public String getLlvmDefinitionString(ArrayList<String> registers) {
+		StringBuilder paramString = new StringBuilder();
+		for (int i = 0; i < parameterTypes.size(); i++) {
+			if (i != 0) {
+				paramString.append(", ");
+			}
+			paramString.append(parameterTypes.get(i));
+			paramString.append(" ");
+			paramString.append(registers.get(i));
+		}
+		return String.format("define %s @%s(%s)", returnType, name, paramString.toString());		
+	}
 }

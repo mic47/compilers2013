@@ -3,6 +3,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.stringtemplate.v4.*;
 
 public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
@@ -115,10 +116,73 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 	@Override
 	public CodeFragment visitDeclaration_function(kubojParser.Declaration_functionContext ctx) {
+		logger.tab(ctx);
 		CodeFragment code = new CodeFragment();
-		// TODO
-		// - declare variables in head
+		
+		ParameterListCodeFragment parameterList = (ParameterListCodeFragment) visit(ctx.parameter_list());
+		
+		String identifier = ctx.IDENTIFIER().getText();
+		String returnType = Variable.myTypeToLlvmType(ctx.type().getText());
+		ArrayList<String> parameterTypes = parameterList.getTypes();
+		ArrayList<String> registers = parameterList.getRegisters();
+		
+		logger.log("trying to define function '%s %s'", returnType, identifier);
+
+		if (functions.containsKey(identifier)) {
+			error += String.format("Error: function '%s' already declared [context: %s]\n", identifier, ctx.getText());
+		} else {
+			Function function = new Function(identifier, returnType, parameterTypes);
+			functions.put(identifier, function);
+			
+			ST template = new ST(
+					"<define_string> {\n" +
+					Utils.addTab("paraminit:\n", CodeFragment.TAB_WIDTH) +
+					"<paraminit_code>" +
+					Utils.addTab("br label %start \n", CodeFragment.TAB_WIDTH * 2) +
+					"<body_code>" + 
+					"}\n\n"
+			);
+			template.add("define_string", function.getLlvmDefinitionString(registers));
+			parameterList.addTab();
+			parameterList.addTab();
+			template.add("paraminit_code", parameterList.toString());
+			CodeFragment body = visit(ctx.function_body());
+			body.addTab();
+			template.add("body_code", body.toString());
+			code.addCode(template.render());
+		}
+		
+		logger.untab();
 		return code;        	
+	}
+	
+	@Override
+	public CodeFragment visitParameter_list(kubojParser.Parameter_listContext ctx) {
+		logger.tab(ctx);
+		ParameterListCodeFragment code = new ParameterListCodeFragment();
+		
+		for (int i = 0; i < ctx.IDENTIFIER().size(); i++) {
+			String identifier = ctx.IDENTIFIER(i).getText();
+			String type = ctx.type(i).getText();
+			
+			String register = generateNewRegister();
+			code.addRegister(register);
+			code.addType(Variable.myTypeToLlvmType(type));
+			
+			DeclareVariableCodeFragment declaration = (DeclareVariableCodeFragment)declareVariable(identifier, type, ctx);
+			Variable variable = declaration.getVariable();
+			code.addCode(declaration);
+			code.addCode(String.format(
+					"store %s %s, %s* %s\n",
+					variable.getLlvmType(),
+					register,
+					variable.getLlvmType(),
+					variable.getRegister()));			
+		}
+		
+		logger.logCode(code);
+		logger.untab();
+		return (CodeFragment)code;   
 	}
 
 	@Override
@@ -159,34 +223,39 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 	@Override
 	public CodeFragment visitDeclaration_var(kubojParser.Declaration_varContext ctx) {
 		logger.tab(ctx);
-		CodeFragment code = new CodeFragment();
+		CodeFragment code = declareVariable(ctx.IDENTIFIER().getText(), ctx.type().getText(), ctx);
 		
-		String identifier = ctx.IDENTIFIER().getText();
-		String type = ctx.type().getText();
-		Variable variable = null;
+		logger.logCode(code);
+		logger.untab();
+		return code;
+	}	
+	
+	public CodeFragment declareVariable(String identifier, String type, ParserRuleContext ctx) {
+		DeclareVariableCodeFragment code = new DeclareVariableCodeFragment();
+		
 		logger.log("trying to declare variable '%s' of type '%s'", identifier, type);
 		
 		if (variables.containsKey(identifier)) {		
 			error += String.format("Error: Variable '%s' already declared [context: %s]\n", identifier, ctx.getText());
 		} else {
+			Variable variable = null;
 			String mem_register = generateNewRegister();
 			
-			if (type.equals("int")) {
+			if (type.equals(Variable.MY_INT)) {
 				code.addCode(String.format("%s = alloca i32\n", mem_register));
 				variable = new IntVariable(identifier, mem_register);
-			} else if (type.equals("int[]")) {
+			} else if (type.equals(Variable.MY_PINT)) {
 				code.addCode(String.format("%s = alloca i32*\n", mem_register));
 				variable = new PIntVariable(identifier, mem_register);
 			} else {
 				error += String.format("Error: Unknown type '%s' [context: %s]\n", type, ctx.getText());
 			}
 			variables.put(identifier, variable);
+			code.setVariable(variable);
 		}
 		
-		logger.logCode(code);
-		logger.untab();
 		return code;
-	}	
+	}
 
 	@Override
 	public CodeFragment visitStr(kubojParser.StrContext ctx) {
@@ -273,6 +342,8 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 			variable = variables.get(identifier);
 			if (ctx.index_to_array() == null) {
 				logger.log("not indexing to array");
+				
+				// TODO refactor
 				String type = "";
 				if (variable.isInt()) {
 					type = "i32";

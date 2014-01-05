@@ -3,6 +3,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 
 public class Compiler {
@@ -30,6 +31,7 @@ public class Compiler {
 	        	Runtime.getRuntime().exit(1);
 	        }
         } catch (Exception e) {
+        	e.printStackTrace(new PrintStream(System.err));
         	System.err.println(eval.error);
         	Runtime.getRuntime().exit(1);
         } finally {
