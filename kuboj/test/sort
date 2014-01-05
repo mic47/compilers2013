@@ -9,6 +9,7 @@ function int[] quicksort(int[] array, int length) {
     var int num_of_less_than_pivot;
     num_of_less_than_pivot = 0;
     var int j;
+    j = 0;
     for (j < length; j = j + 1) {
       if (array[j] < pivot) {
         num_of_less_than_pivot = num_of_less_than_pivot + 1;
@@ -20,26 +21,27 @@ function int[] quicksort(int[] array, int length) {
     var int less_length;    
     less_length = 0;
 
-    var int[] greater;
-    greater = mallocint(length - 1 - num_of_less_than_pivot);
-    var int greater_length;    
-    greater_length = 0;
+    var int[] greater_or_equal;
+    greater_or_equal = mallocint(length - 1 - num_of_less_than_pivot);
+    var int greater_or_equal_length;    
+    greater_or_equal_length = 0;
 
     j = 0;
-    for (j < length; j = j + 1) {
+    for (j < length - 1; j = j + 1) {
       if (array[j] < pivot) {
         less[less_length] = array[j];
         less_length = less_length + 1;
       } else {
-        greater[greater_length] = array[j];
-        greater_length = greater_length + 1; 
+        greater_or_equal[greater_or_equal_length] = array[j];
+        greater_or_equal_length = greater_or_equal_length + 1; 
       }
     }
   
     var int[] sorted_less;
     sorted_less = quicksort(less, less_length);
-    var int[] sorted_greater;
-    sorted_greater = quicksort(greater, greater_length);
+    
+    var int[] sorted_greater_or_equal;
+    sorted_greater_or_equal = quicksort(greater_or_equal, greater_or_equal_length);
 
     var int[] new_array;
     new_array = mallocint(length);
@@ -49,8 +51,8 @@ function int[] quicksort(int[] array, int length) {
     }
     new_array[less_length] = pivot;
     j = 0;
-    for (j < greater_length; j = j + 1) {
-      new_array[j + less_length] = sorted_greater[j];
+    for (j < greater_or_equal_length; j = j + 1) {
+      new_array[j + less_length + 1] = sorted_greater_or_equal[j];
     }
 
     retval = new_array;

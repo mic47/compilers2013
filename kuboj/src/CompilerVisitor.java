@@ -314,7 +314,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		code.addCode(argumentList);
 
 		String retvalRegister = generateNewRegister();
-
+		
 		code.addCode(functions.get(functionName).getCallInstruction(retvalRegister, argumentList.getRegisters()));
 		code.setRegister(retvalRegister);
 
