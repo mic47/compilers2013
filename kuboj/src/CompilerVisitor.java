@@ -13,6 +13,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 	private int registerIndex = 0;
 	private Logger logger = new Logger();
 	public String error = "";
+	private Function currentFunction = null;
 
 	private String generateNewLabel() {
 		return String.format("L%d", this.labelIndex++);
@@ -96,13 +97,20 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 	@Override
 	public CodeFragment visitDeclaration_main_function(kubojParser.Declaration_main_functionContext ctx) {
 		logger.tab(ctx);
-		CodeFragment body = visit(ctx.function_body());
+		
+		Function function = new Function(
+				ctx.MAIN().getText(),
+				Variable.myTypeToLlvmType(ctx.TYPE_INT().getText()),
+				new ArrayList<String>());
+		functions.put(ctx.MAIN().getText(), function);
+		this.currentFunction = function;
 
 		ST template = new ST( 
 				"define i32 @main() {\n" + 
 				"<body_code>" + 
 				"}\n"
 		);
+		CodeFragment body = visit(ctx.function_body());
 		body.addTab();
 		template.add("body_code", body);
 
@@ -119,20 +127,23 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		logger.tab(ctx);
 		CodeFragment code = new CodeFragment();
 		
-		ParameterListCodeFragment parameterList = (ParameterListCodeFragment) visit(ctx.parameter_list());
-		
 		String identifier = ctx.IDENTIFIER().getText();
 		String returnType = Variable.myTypeToLlvmType(ctx.type().getText());
-		ArrayList<String> parameterTypes = parameterList.getTypes();
-		ArrayList<String> registers = parameterList.getRegisters();
 		
 		logger.log("trying to define function '%s %s'", returnType, identifier);
 
 		if (functions.containsKey(identifier)) {
 			error += String.format("Error: function '%s' already declared [context: %s]\n", identifier, ctx.getText());
 		} else {
-			Function function = new Function(identifier, returnType, parameterTypes);
+			Function function = new Function(identifier, returnType);
 			functions.put(identifier, function);
+			currentFunction = function;
+			
+			ParameterListCodeFragment parameterList = (ParameterListCodeFragment) visit(ctx.parameter_list());
+			ArrayList<String> parameterTypes = parameterList.getTypes();
+			ArrayList<String> registers = parameterList.getRegisters();
+			
+			function.setParameterTypes(parameterTypes);
 			
 			ST template = new ST(
 					"<define_string> {\n" +
@@ -204,7 +215,10 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 				Utils.addTab("br label %end\n", CodeFragment.TAB_WIDTH) + 
 				"end:\n" +
 				"<exp_code>" +
-				Utils.addTab("ret i32 <ret_register>\n", CodeFragment.TAB_WIDTH) // TODO type ... struct ? 
+				Utils.addTab(String.format(
+						"ret %s <ret_register>\n",
+						currentFunction.getReturnType()
+						), CodeFragment.TAB_WIDTH) // TODO type ... struct ? 
 		);
 		statements.addTab();
 		template.add("statements_code", statements);

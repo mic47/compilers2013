@@ -10,6 +10,15 @@ public class Function {
 		this.returnType = returnType;
 		this.parameterTypes = parameterTypes;
 	}
+	
+	public Function(String name, String returnType) {
+		this.name = name;
+		this.returnType = returnType;
+	}
+	
+	public void setParameterTypes(ArrayList<String> pt) {
+		this.parameterTypes = pt;
+	}
 
 	public String getName() {
 		return this.name;

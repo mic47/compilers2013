@@ -11,7 +11,7 @@ function int[] quicksort(int[] array, int length) {
     var int j;
     for (j < length; j = j + 1) {
       if (array[j] < pivot) {
-        num_of_less_than_pivot += 1;
+        num_of_less_than_pivot = num_of_less_than_pivot + 1;
       }
     }
 
@@ -29,10 +29,10 @@ function int[] quicksort(int[] array, int length) {
     for (j < length; j = j + 1) {
       if (array[j] < pivot) {
         less[less_length] = array[j];
-        less_length += 1;
+        less_length = less_length + 1;
       } else {
         greater[greater_length] = array[j];
-        greater_length += 1; 
+        greater_length = greater_length + 1; 
       }
     }
   
