@@ -31,6 +31,9 @@ public class Logger {
 	}
 	
 	public void logCode(CodeFragment code) {
+		if (code.code.length() == 0) {
+			return;
+		}
 		log("------code------");
 		String codeStr = code.code.replace("%", "%%");
 		log(codeStr.substring(0, codeStr.length() - 1));

@@ -2,6 +2,3 @@ general
   - int[] assignments
   - function declarations
   - external functions
-
-library.c
-  - add readint function

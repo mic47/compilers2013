@@ -21,6 +21,12 @@ int writestrnl(char *str) {
     return 0;
 }
 
+int readint() {
+    int i;
+    scanf("%d", &i);
+    return i;
+}
+
 int* mallocint(int n) {
     return (int *) malloc(sizeof(int) * n);
 }
