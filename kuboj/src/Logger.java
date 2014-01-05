@@ -3,7 +3,7 @@ import java.io.PrintWriter;
 import org.antlr.v4.runtime.ParserRuleContext;
 
 public class Logger {
-	public static final int TAB_WIDTH = 2;
+	public static final int TAB_WIDTH = 4;
 	private int current_tab = 0;
 	private PrintWriter out = new PrintWriter(System.out, true);
 	private PrintWriter err = new PrintWriter(System.err, true);
@@ -36,7 +36,12 @@ public class Logger {
 		}
 		log("------code------");
 		String codeStr = code.code.replace("%", "%%");
-		log(codeStr.substring(0, codeStr.length() - 1));
+		codeStr = codeStr.substring(0, codeStr.length() - 1);
+		String lines[] = codeStr.split("\n");
+		for (int i = 0; i < lines.length; i++) {
+			log(lines[i]);
+		}
+		
 		log("------code------");
 	}
 	
