@@ -363,7 +363,13 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		
         CodeFragment condition = visit(ctx.expression());
         CodeFragment statement_true = visit(ctx.block(0));
-        CodeFragment statement_false = visit(ctx.block(1));
+        CodeFragment statement_false = null;
+        
+        if (ctx.block(1) == null) {
+        	statement_false = new CodeFragment();
+        } else {
+        	statement_false = visit(ctx.block(1));	
+        }
 
         ST template = new ST(
                 "<condition_code>" + 
