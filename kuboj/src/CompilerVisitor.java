@@ -25,6 +25,18 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 	public CodeFragment visitInit(kubojParser.InitContext ctx) {
 		logger.writeFunction(ctx);
 		CodeFragment code = new CodeFragment();
+
+		// include built-in function
+		functions.put("writeint", new Function("writeint", "i32", new ArrayList<String>(Arrays.asList("i32"))));
+		functions.put("writestr", new Function("writestr", "i32", new ArrayList<String>(Arrays.asList("i8*"))));
+		functions.put("writeintnl", new Function("writeintnl", "i32", new ArrayList<String>(Arrays.asList("i32"))));
+		functions.put("writestrnl", new Function("writestrnl", "i32", new ArrayList<String>(Arrays.asList("i8*"))));
+		functions.put("readint", new Function("readint", "i32", new ArrayList<String>()));
+		functions.put("mallocint", new Function("mallocint", "i32*", new ArrayList<String>(Arrays.asList("i32"))));
+
+		for (Map.Entry<String, Function> e : functions.entrySet()) {
+			code.addCode(e.getValue().getLlvmDeclarationString());
+		}
 		
 		for (kubojParser.Import_functionContext c : ctx.import_function()) {
 			CodeFragment import_function = visit(c);
@@ -61,7 +73,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		
 		if (ctx.type().size() > 1) {
 			for (int i = 1; i < ctx.type().size(); i++) {
-				parameterTypes.add(Variable.myTypeToLlvmType(ctx.type(i - 1).getText()));
+				parameterTypes.add(Variable.myTypeToLlvmType(ctx.type(i).getText()));
 			}
 		}
 		
