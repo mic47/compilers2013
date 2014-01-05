@@ -29,17 +29,15 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		functions.put("writestr", new Function("writestr", "i32", new ArrayList<String>(Arrays.asList("i8*"))));
 		functions.put("writeintnl", new Function("writeintnl", "i32", new ArrayList<String>(Arrays.asList("i32"))));
 		functions.put("writestrnl", new Function("writestrnl", "i32", new ArrayList<String>(Arrays.asList("i8*"))));
+		functions.put("readint", new Function("readint", "i32", new ArrayList<String>()));
 		functions.put("mallocint", new Function("mallocint", "i32*", new ArrayList<String>(Arrays.asList("i32"))));
 
 		CodeFragment code = new CodeFragment();
-		code.addCode( // TODO: Function#getDeclarationString()
-				"declare i32 @writeint(i32)\n" + 
-				"declare i32 @writestr(i8*)\n" +
-				"declare i32 @writeintnl(i32)\n" + 
-				"declare i32 @writestrnl(i8*)\n" +
-				"declare i32* @mallocint(i32)\n" +
-			    "\n"
-		);
+		for (Map.Entry<String, Function> e : functions.entrySet()) {
+			code.addCode(e.getValue().getLlvmDeclarationString());
+		}
+		code.addCode("\n");
+
 		for (kubojParser.Declaration_functionContext s: ctx.declaration_function()) {
 			CodeFragment declaration_function = visit(s);
 			code.addCode(declaration_function);
