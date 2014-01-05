@@ -233,16 +233,45 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 			variable = variables.get(identifier);
 			if (ctx.index_to_array() == null) {
 				logger.log("not indexing to array");
+				String type = "";
+				if (variable.isInt()) {
+					type = "i32";
+				} else if (variable.isPInt()) {
+					type = "i32*";
+				}
 				code.addCode(expression);
 				code.addCode(String.format(
-						"store i32 %s, i32* %s\n",
+						"store %s %s, %s* %s\n",
+						type,
 						expression.getRegister(),
+						type,
 						variable.getRegister()
 				));
 				logger.log("assign to " + variable);
 			} else {
 				logger.log("indexing to array");
-				// TODO
+				CodeFragment index = visit(ctx.index_to_array());
+				code.addCode(index);
+				code.addCode(expression);
+				String register = generateNewRegister();
+				String register2 = generateNewRegister();
+				code.addCode(String.format(
+						"%s = load i32** %s\n",
+						register,
+						variable.getRegister()
+				));
+				code.addCode(String.format(
+						"%s = getelementptr i32* %s, i32 %s\n",
+						register2,
+						register,
+						index.getRegister()
+				));
+				code.addCode(String.format(
+						"store i32 %s, i32* %s\n",
+						expression.getRegister(),
+						register2
+				));
+				code.setRegister(register2);
 			}
 		}
 		
@@ -253,10 +282,49 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 	@Override
 	public CodeFragment visitInd(kubojParser.IndContext ctx) {
-		System.out.println("Ind");
-		// TODO
-		return new CodeFragment();
+		logger.tab(ctx);
+		CodeFragment code = new CodeFragment();
+		
+		String identifier = ctx.IDENTIFIER().getText();
+		CodeFragment index = visit(ctx.index_to_array());
+		code.addCode(index);
+		
+		if (!variables.containsKey(identifier)) {
+			logger.error("Error: unknown identifier '%s'", identifier);
+		} else {
+			Variable variable = variables.get(identifier);
+			
+			String register = generateNewRegister();
+			code.addCode(String.format(
+					"%s = load i32** %s\n",
+					register,
+					variable.getRegister()
+			));
+			String register2 = generateNewRegister();
+			code.addCode(String.format(
+					"%s = getelementptr i32* %s, i32 %s\n",
+					register2,
+					register,
+					index.getRegister()
+			));
+			String register3 = generateNewRegister();
+			code.addCode(String.format(
+					"%s = load i32* %s\n",
+					register3,
+					register2
+			));
+			code.setRegister(register3);
+		}
+		
+		logger.logCode(code);
+		logger.untab();
+		return code;		
 	}    
+	
+	@Override
+	public CodeFragment visitIndex_to_array(kubojParser.Index_to_arrayContext ctx) {
+		return visit(ctx.expression());
+	}
 
 	@Override
 	public CodeFragment visitVar(kubojParser.VarContext ctx) {
