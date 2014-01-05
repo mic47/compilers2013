@@ -3,7 +3,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.omg.CORBA.CTX_RESTRICT_SCOPE;
 import org.stringtemplate.v4.*;
 
 public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
@@ -12,6 +11,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 	private int labelIndex = 0;
 	private int registerIndex = 0;
 	private Logger logger = new Logger();
+	public String error = "";
 
 	private String generateNewLabel() {
 		return String.format("L%d", this.labelIndex++);
@@ -126,8 +126,8 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		Variable variable = null;
 		logger.log("trying to declare variable '%s' of type '%s'", identifier, type);
 		
-		if (variables.containsKey(identifier)) {
-			logger.error("Variable '%s' already declared", identifier);
+		if (variables.containsKey(identifier)) {		
+			error += String.format("Error: Variable '%s' already declared [context: %s]\n", identifier, ctx.getText());
 		} else {
 			String mem_register = generateNewRegister();
 			
@@ -138,7 +138,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 				code.addCode(String.format("%s = alloca i32*\n", mem_register));
 				variable = new PIntVariable(identifier, mem_register);
 			} else {
-				logger.error("Unknown type '%s'", type);
+				error += String.format("Error: Unknown type '%s' [context: %s]\n", type, ctx.getText());
 			}
 			variables.put(identifier, variable);
 		}
@@ -184,7 +184,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 		String functionName = ctx.IDENTIFIER().getText();
 		if (!functions.containsKey(functionName)) {
-			System.err.println(String.format("Error: unknown function '%s'", functionName));
+			error += String.format("Error: unknown function '%s' [context: %s]\n", functionName, ctx.getText()); 
 		}
 
 		ArgumentListCodeFragment argumentList = (ArgumentListCodeFragment)visit(ctx.argument_list());
@@ -228,7 +228,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		logger.log("found identifier '%s'", identifier);
 		
 		if (!variables.containsKey(identifier)) {
-			logger.error("Error: unknown identifier '%s'", identifier);
+			error += String.format("Error: unknown identifier '%s' [context: %s]\n", identifier, ctx.getText());
 		} else {
 			variable = variables.get(identifier);
 			if (ctx.index_to_array() == null) {
@@ -290,7 +290,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		code.addCode(index);
 		
 		if (!variables.containsKey(identifier)) {
-			logger.error("Error: unknown identifier '%s'", identifier);
+			error += String.format("Error: unknown identifier '%s' [context: %s]\n", identifier, ctx.getText());
 		} else {
 			Variable variable = variables.get(identifier);
 			
@@ -334,22 +334,18 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		String identifier = ctx.IDENTIFIER().getText();
 		Variable variable = null;
 		if (!variables.containsKey(identifier)) {
-			logger.error("Unknown identifier '%s'", identifier);
+			error += String.format("Error: unknown identifier '%s' [context: %s]\n", identifier, ctx.getText());
 		} else {
 			variable = variables.get(identifier);
 		}
 		
-		if (variable.isInt()) {
-			String register = generateNewRegister();
-			code.addCode(String.format(
-					"%s = load i32* %s\n",
-					register,
-					variable.getRegister()
-			));
-			code.setRegister(register);
-		} else if (variable.isPInt()) {
-			// TODO
-		}
+		String register = generateNewRegister();
+		code.addCode(String.format(
+				"%s = load i32* %s\n",
+				register,
+				variable.getRegister()
+		));
+		code.setRegister(register);
 		
 		logger.logCode(code);
 		logger.untab();

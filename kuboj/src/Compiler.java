@@ -1,9 +1,6 @@
-
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.gui.*;
 
-import java.util.*;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -20,13 +17,17 @@ public class Compiler {
         kubojParser parser = new kubojParser(tokens);
         ParseTree tree = parser.init();
         
-        //new TreeViewer(Arrays.asList(parser.getRuleNames()), tree).open();
-
         CompilerVisitor eval = new CompilerVisitor();
         CodeFragment code = eval.visit(tree);
         
-        System.out.println(String.format("Writing to file '%s'", args[1]));
-        writer.write(code.toString());
+        if (eval.error.equals("")) {
+            System.out.println(String.format("Writing to file '%s'", args[1]));
+            writer.write(code.toString());
+        } else {
+        	System.err.println(eval.error);
+        	Runtime.getRuntime().exit(1);
+        }
+        
         writer.close();
     }
 }

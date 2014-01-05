@@ -6,7 +6,6 @@ public class Logger {
 	public static final int TAB_WIDTH = 4;
 	private int current_tab = 0;
 	private PrintWriter out = new PrintWriter(System.out, true);
-	private PrintWriter err = new PrintWriter(System.err, true);
 	
 	public Logger() {
 	}
@@ -24,10 +23,6 @@ public class Logger {
 	
 	public void log(String s, Object... args) {
 		out.println(String.format(getTab() + s, args));
-	}
-	
-	public void error(String s, Object... args) {
-		err.println(String.format(getTab() + "Error: " + s, args));
 	}
 	
 	public void logCode(CodeFragment code) {
