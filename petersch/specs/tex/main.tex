@@ -1,0 +1,264 @@
+\documentclass{article}
+
+
+\usepackage{czech}
+\usepackage[slovak]{babel}
+%\usepackage[latin1]{inputenc}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+
+%\usepackage{color}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{listings}
+
+
+\begin{document}
+
+\definecolor{lg}{gray}{0.7}
+
+\lstdefinestyle{customc}{
+  belowcaptionskip=1\baselineskip,
+  breaklines=true,
+  frame=L,
+  xleftmargin=\parindent,
+  language=C,
+  showstringspaces=false,
+  basicstyle=\footnotesize\ttfamily,
+  keywordstyle=\bfseries\color{blue},
+  keywords=[2]{read,write,unless,bool,in},
+  keywordstyle={[2]\bfseries\color{blue}},
+  commentstyle=\color{lg},
+  identifierstyle=\color{black},
+  stringstyle=\color{red},
+}
+
+\lstset{escapechar=@,style=customc}
+
+
+\centerline{\sc \large Kompilátory - Assignment 1}
+\vspace{.5pc}
+\centerline{\sc Peter Schmidt}
+\vspace{2pc}
+
+\section{Špecifikácia jazyka}
+ 
+    \subsection{Syntax}
+        Syntax je podobná jazyku C.
+        Každý riadok obsahuje najviac jeden príkaz (priradenie, volanie funkcie alebo niektorú z riadiacich štruktúr),
+        a príkazy sa neoddeľujú bodkočiarkami.
+        Identifikátory (názvy funkcií a mená premenných) musia spĺňať regulárny výraz \texttt{[\_a-zA-Z][\_a-zA-Z0-9]*}
+
+    \subsection{Premenné}
+        Jazyk podporuje 32 bitový celočíselný typ int, polia typu int a booleovský typ bool.
+        Jazyk podporuje stringové literály iba pre výstup.
+        Premenné majú statický typ, deklarované sú ako v jazyku C.
+        Neinicializované premenné majú hodnotu 0 resp. \texttt{false}.
+        \begin{lstlisting}
+int i, j
+int n = 5
+        \end{lstlisting}
+        Premenné sú platné po koniec bloku v ktorom boli definované.
+        Nie je povolené deklarovať premennú s názvom rovnakým ako názov funkcie alebo meno inej platnej premennej.
+
+    \subsection{Operátory}
+        Jazyk podporuje operátory pre bežné aritmetické a logické operácie
+        \begin{lstlisting}
++ - * / % & | ^
+        \end{lstlisting}
+        a relácie porovnania
+        \begin{lstlisting}
+< > <= >= == !=
+        \end{lstlisting}
+
+    \subsection{Polia}
+        Jazyk podporuje iba polia typu \texttt{int}.
+        Polia sú indexované od 0, veľkosť poľa je možné zistiť vstavanou funkciu \texttt{size()}.
+        Veľkosť poľa je definovaná v runtime a pole je zrušené pri návrate z funkcie.
+        \begin{lstlisting}
+int pole[5]
+int pole[5][2]
+n = pole[i]
+        \end{lstlisting}
+
+    \subsection{Funkcie}
+        Funkcie sú deklarované a definované rovnako ako v jazyku C.
+        \begin{lstlisting}
+int fn(int i, int pole[]) {
+    return pole[i]
+}
+        \end{lstlisting}
+        Tiež je možné používať externé funkcie, tie je potrebné deklarovať na začiatku zdrojového kódu.
+        \begin{lstlisting}
+extern int fn(int, int)
+        \end{lstlisting}
+
+    \subsection{Vstup a výstup}
+        Pre štandardný vstup a výstup slúžia kľúčové slová read a write.
+        Načítať je možné iba do premennej typu int, pre výpis je možné navyše používať stringové literály.
+        \begin{lstlisting}
+read n                  // ak n je typu int, nacita cele cislo
+write "vysledok: ", n   // vypise string a cislo n
+        \end{lstlisting}
+
+    \subsection{Riadiace štruktúry}
+        Jazyk podporuje for a while pre cykly a if a unless pre podmienené vetvenie.
+        Iteračná premenná for-cyklu je vždy typu int, čo nie je potrebné deklarovať.
+        Pre potreby cyklu sa používa range (ako v Ruby), inkluzívny 1..n, resp. exkluzívny 0...size(pole)
+
+        \begin{lstlisting}
+for i in 0...size(pole) {
+    // do something with pole[i]
+}
+
+if n < m {
+    // ...
+}
+else {
+    // ...
+}
+        \end{lstlisting}
+        
+        
+        
+\section{Príklady}
+
+    \subsection{Triedenie}
+        \begin{lstlisting}
+void merge(int[] in1, int[] in2, int[] out) {
+    int p1 = 0, p2 = 0
+    for i in 0...size(out) {
+         if in1[p1] <= in2[p2] {
+             out[i] = in1[p1]
+             ++p1
+         }
+         else {
+             out[i] = in2[p2]
+             ++p2
+         }
+    }
+}
+
+void merge_sort(int[] pole) {
+    if size(pole) == 1 {
+        return
+    }
+    
+    int odd = (size(pole) % 2 == 0) ? 0 : 1
+    int sub1[size(pole) / 2 + odd]
+    int sub2[size(pole) / 2]
+    
+    for i in 0...size(sub1) {
+        sub1[i] = pole[i]
+    }    
+    for i in 0...size(sub2) {
+        sub2[i] = pole[i + size(sub1)]
+    }
+    
+    merge_sort(sub1)
+    merge_sort(sub2)
+    merge(pole, sub1, sub2)
+}
+
+void main() {
+    int n
+    read n
+    
+    int pole[n]
+    for i in 0...n {
+        read pole[i]
+    }
+    
+    merge_sort(pole)
+    
+    for i in 0...n {
+        write pole[i]
+    }
+}
+
+        \end{lstlisting}
+
+    \subsection{Prvočísla}
+        \begin{lstlisting}
+void main() {
+    int n
+    read n
+
+    int pole[n-2]
+    for i in 0...size(pole) {
+        pole[i] = i+2
+    }
+    
+    for i in 0...size(pole) {
+        unless pole[i] == 0 {
+            for j in (i+1)...size(pole) {
+                if pole[j] % i == 0 {
+                    pole[j] = 0
+                }
+            }
+        }
+    }
+    
+    for i in 0...size(pole) {
+        unless pole[i] == 0 {
+            write pole[i]
+        }
+    }
+}
+
+        \end{lstlisting}
+
+    \subsection{Súvislosť grafu}
+        \begin{lstlisting}
+int findset(int[] pole, int i) {
+    int iset = i
+    while pole[iset] != iset {
+        iset = pole[iset]
+    }
+    while pole[i] != iset {
+        pole[i] = iset
+        i = pole[i]
+    }
+    return iset
+}
+
+int union(int[] pole, int i, int j) {
+    int iset = findset(pole, i)
+    pole[iset] = findset(pole, j)
+    return pole[iset]
+}
+
+void main() {
+    int n, m
+    read n, m
+
+    int sets[n]
+    for i in 0...n {
+        sets[i] = i
+    }
+
+    for i in 0...m {
+        int u, v
+        read u, v
+        union(sets, u, v)
+    }
+
+    bool connected = true
+    for i in 1...n {
+        unless sets[i-1] == sets[i] {
+            connected = false
+        }
+    }
+
+    if connected {
+        write "ANO\n"
+    }
+    else {
+        write "NIE\n"
+    }
+}
+
+        \end{lstlisting}
+
+
+
+\end{document}
