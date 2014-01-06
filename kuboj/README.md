@@ -61,7 +61,7 @@ Kniznicne funkcie
 -------------
 
 * *int* **readint()** - nacita int zo standardneho vstupu
-* *int* **writeint****(***int***)** - vypise int na standardny vystup
+* *int* **writeint** **(***int***)** - vypise int na standardny vystup
 * *int* **writeintnl****(***int***)** - vypise int na standardny vystup a zapise newline
 * *int* **writestr****(***"somestring"***)** - vypise string na standardny vystup
 * *int* **writestrnl****(***"somestring"***)** - vypise string na standardny vystup a zapise newline
