@@ -120,7 +120,7 @@ int pretty_array_print(int array[], int length) {
 
 * subor *tmp/in* bude mat nasledovny obsah
 
-```sh
+```
 import int pretty_array_print(int[], int);
 
 function int[] generate_array(int length) {
