@@ -95,6 +95,8 @@ $ ./run.sh tmp/out
 Hello World!
 ```
 
+* malo by fungovat aj *./judge.py kuboj hello*
+
 Komplexnejsi priklad
 -------------
 
