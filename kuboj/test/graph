@@ -62,9 +62,9 @@ function int main() {
   }
 
   if (visited_all == 1) {
-    writestrnl("ANO");
+    writestrnl("YES");
   } else {
-    writestrnl("NIE");
+    writestrnl("NO");
   }
   return 0;
 }
