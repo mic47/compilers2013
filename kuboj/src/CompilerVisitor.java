@@ -8,7 +8,7 @@ import org.stringtemplate.v4.*;
 
 public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 	private Map<String, Function> functions = new HashMap<String, Function>();
-	private Map<String, Variable> variables = new HashMap<String, Variable>();
+	private HashMap<Function, HashMap<String, Variable>> variables = new HashMap<Function, HashMap<String, Variable>>();
 	private int labelIndex = 0;
 	private int registerIndex = 0;
 	private Logger logger = new Logger();
@@ -21,6 +21,18 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 
 	private String generateNewRegister() {
 		return String.format("%%R%d", this.registerIndex++);
+	}
+	
+	private Variable getVariable(String identifier) {
+		return variables.get(currentFunction).get(identifier);
+	}
+	
+	private boolean variableExists(String identifier) {
+		return variables.get(currentFunction).containsKey(identifier);
+	}
+	
+	private Variable putVariable(String identifier, Variable variable) {
+		return variables.get(currentFunction).put(identifier, variable);
 	}
 
 	@Override
@@ -86,6 +98,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		} else {
 			Function f = new Function(identifier, returnType, parameterTypes);
 			functions.put(identifier, f);
+			variables.put(f, new HashMap<String, Variable>()); 
 			code.addCode(f.getLlvmDeclarationString());
 		}
 		
@@ -103,6 +116,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 				Variable.myTypeToLlvmType(ctx.TYPE_INT().getText()),
 				new ArrayList<String>());
 		functions.put(ctx.MAIN().getText(), function);
+		variables.put(function, new HashMap<String, Variable>());
 		this.currentFunction = function;
 
 		ST template = new ST( 
@@ -137,6 +151,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		} else {
 			Function function = new Function(identifier, returnType);
 			functions.put(identifier, function);
+			variables.put(function, new HashMap<String, Variable>());
 			currentFunction = function;
 			
 			ParameterListCodeFragment parameterList = (ParameterListCodeFragment) visit(ctx.parameter_list());
@@ -249,7 +264,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		
 		logger.log("trying to declare variable '%s' of type '%s'", identifier, type);
 		
-		if (variables.containsKey(identifier)) {		
+		if (variableExists(identifier)) {
 			error += String.format("Error: Variable '%s' already declared [context: %s]\n", identifier, ctx.getText());
 		} else {
 			Variable variable = null;
@@ -264,7 +279,7 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 			} else {
 				error += String.format("Error: Unknown type '%s' [context: %s]\n", type, ctx.getText());
 			}
-			variables.put(identifier, variable);
+			putVariable(identifier, variable);
 			code.setVariable(variable);
 		}
 		
@@ -350,10 +365,10 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		
 		logger.log("found identifier '%s'", identifier);
 		
-		if (!variables.containsKey(identifier)) {
+		if (!variableExists(identifier)) {
 			error += String.format("Error: unknown identifier '%s' [context: %s]\n", identifier, ctx.getText());
 		} else {
-			variable = variables.get(identifier);
+			variable = getVariable(identifier);
 			if (ctx.index_to_array() == null) {
 				logger.log("not indexing to array");
 				
@@ -414,10 +429,10 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		CodeFragment index = visit(ctx.index_to_array());
 		code.addCode(index);
 		
-		if (!variables.containsKey(identifier)) {
+		if (!variableExists(identifier)) {
 			error += String.format("Error: unknown identifier '%s' [context: %s]\n", identifier, ctx.getText());
 		} else {
-			Variable variable = variables.get(identifier);
+			Variable variable = getVariable(identifier);
 			
 			String register = generateNewRegister();
 			code.addCode(String.format(
@@ -458,10 +473,10 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 		
 		String identifier = ctx.IDENTIFIER().getText();
 		Variable variable = null;
-		if (!variables.containsKey(identifier)) {
+		if (!variableExists(identifier)) {
 			error += String.format("Error: unknown identifier '%s' [context: %s]\n", identifier, ctx.getText());
 		} else {
-			variable = variables.get(identifier);
+			variable = getVariable(identifier);
 		}
 		
 		String register = generateNewRegister();
