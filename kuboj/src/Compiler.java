@@ -8,7 +8,6 @@ import java.io.PrintWriter;
 
 public class Compiler {
     public static void main(String[] args) throws Exception {
-    	System.out.println(String.format("Reading file '%s'", args[0]));
         InputStream is = new FileInputStream(args[0]);
         PrintWriter writer = new PrintWriter(args[1]);
         
@@ -18,13 +17,12 @@ public class Compiler {
         kubojParser parser = new kubojParser(tokens);
         ParseTree tree = parser.init();
         
-        CompilerVisitor eval = new CompilerVisitor();
+        CompilerVisitor eval = new CompilerVisitor(false);
         
         try {
 	        CodeFragment code = eval.visit(tree);
 	        
 	        if (eval.error.equals("")) {
-	            System.out.println(String.format("Writing to file '%s'", args[1]));
 	            writer.write(code.toString());
 	        } else {
 	        	System.err.println(eval.error);

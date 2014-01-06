@@ -6,8 +6,10 @@ public class Logger {
 	public static final int TAB_WIDTH = 4;
 	private int current_tab = 0;
 	private PrintWriter out = new PrintWriter(System.out, true);
+	private boolean enabled;
 	
-	public Logger() {
+	public Logger(boolean e) {
+		enabled = e;
 	}
 	
 	public void tab(ParserRuleContext ctx) {
@@ -22,7 +24,9 @@ public class Logger {
 	}
 	
 	public void log(String s, Object... args) {
-		out.println(String.format(getTab() + s, args));
+		if (enabled) {
+			out.println(String.format(getTab() + s, args));
+		}
 	}
 	
 	public void logCode(CodeFragment code) {

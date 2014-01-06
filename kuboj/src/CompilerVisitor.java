@@ -11,9 +11,14 @@ public class CompilerVisitor extends kubojBaseVisitor<CodeFragment> {
 	private HashMap<Function, HashMap<String, Variable>> variables = new HashMap<Function, HashMap<String, Variable>>();
 	private int labelIndex = 0;
 	private int registerIndex = 0;
-	private Logger logger = new Logger();
+	private Logger logger;
 	public String error = "";
 	private Function currentFunction = null;
+	
+	public CompilerVisitor(boolean loggerEnabled) {
+		super();
+		logger = new Logger(loggerEnabled);
+	}
 
 	private String generateNewLabel() {
 		return String.format("L%d", this.labelIndex++);
