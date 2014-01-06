@@ -60,12 +60,12 @@ for (i < 10; i = i + 1) {
 Kniznicne funkcie
 -------------
 
-* *int* **readint()** - nacita int zo standardneho vstupu
-* *int* **writeint** **(***int***)** - vypise int na standardny vystup
-* *int* **writeintnl****(***int***)** - vypise int na standardny vystup a zapise newline
-* *int* **writestr****(***"somestring"***)** - vypise string na standardny vystup
-* *int* **writestrnl****(***"somestring"***)** - vypise string na standardny vystup a zapise newline
-* *int[]* **mallocint****(***int***)** - alokuje pamat na dany pocet intov a vrati pointer na prvy
+* *int* readint() - nacita int zo standardneho vstupu
+* *int* writeint(*int*) - vypise int na standardny vystup
+* *int* writeintnl(*int*) - vypise int na standardny vystup a zapise newline
+* *int* writestr(*"somestring"*) - vypise string na standardny vystup
+* *int* writestrnl(*"somestring"*) - vypise string na standardny vystup a zapise newline
+* *int[]* mallocint(*int*) - alokuje pamat na dany pocet intov a vrati pointer na prvy
 
 Pouzivanie externych funkcii
 -------------
