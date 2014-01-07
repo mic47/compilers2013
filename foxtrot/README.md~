@@ -26,8 +26,8 @@ Funkcie
 -------------
 
 Zápis funkcie:
-`def <typ návratovej hodnoty> <názov>(<typ> <názov argumentu>, ...) {  
-
-  return <návratová hodnota>;  
-
-}`
+```
+def <typ návratovej hodnoty> <názov>(<typ> <názov argumentu>, ...) {
+  return <návratová hodnota>;
+}
+```
