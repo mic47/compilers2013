@@ -59,3 +59,33 @@ var int[10, 20, 30] c; # 3­-rozmerné pole o veľkosti 10*20*30
 
 Veľkosť poľa je typu _int_, indexácia je možná pomocou hranatých zátvoriek. V prípade
 viacrozmerných polí sú jednotlivé indexy oddelené čiarkou.
+
+Cykly a riadenie toku
+-------------
+
+Podporovaný je len štandardný while cyklus. Zápis:
+```
+while(<podmienka>) {
+  # telo cyklu
+}
+```
+
+Riadenie toku umožňuje konštrukt if, zápis:
+```
+if(<podmienka>) {
+  # ak je podmienka pravdivá, riadenie pokračuje tu
+}
+else {
+  # ak podmienka nie je pravdivá, riadenie pokračuje tu
+  # časť else je nepovinná
+}
+```
+
+Operátory
+-------------
+* `*, /, %`
+* `+, -`
+* `&&, ||`
+* `==, <, >, <=, >=, !=`
+* `=`
+

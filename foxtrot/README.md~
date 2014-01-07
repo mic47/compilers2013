@@ -31,3 +31,31 @@ def <typ návratovej hodnoty> <názov>(<typ> <názov argumentu>, ...) {
   return <návratová hodnota>;
 }
 ```
+
+Ak funkcia nič nevracia, typ návratovej hodnoty je void a return nie je potrebné písať.
+
+Built­in funkcie:
+* string **readInt**() - číta zo STDIN jedno celé číslo (32-bit integer)
+* **print**(string arg) - vypíše na STDOUT arg
+* **newline**() - ukončí riadok
+* **exit**() - skončí celý program
+
+Polia
+-------------
+
+Deklarácia poľa:
+```
+var <typ>[<veľkosť>, ...] <názov>;
+```
+
+Príklady:
+```
+var int[10] a; 	       # pole o veľkosti 10 uchovávajúce int
+var int n;
+n = 20;
+var int[n] b;          # pole o veľkosti n, kde n bolo nastavené na 20
+var int[10, 20, 30] c; # 3­-rozmerné pole o veľkosti 10*20*30
+```
+
+Veľkosť poľa je typu _int_, indexácia je možná pomocou hranatých zátvoriek. V prípade
+viacrozmerných polí sú jednotlivé indexy oddelené čiarkou.
