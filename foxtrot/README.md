@@ -5,7 +5,7 @@ Foxtrot je programovací jazyk inšpirovaný jazykom C a je možné skompilovať
 
 Podporované dátové typy
 -------------
-* **int** 32bit integer
+* **int** 32-bit integer
 * **string** reťazec znakov, inicializácia priamo v kóde sa zapisuje do dvojitých úvodzoviek
 
 
@@ -21,3 +21,11 @@ Príklady:
 
 Každá premenná musí byť pred použítím deklarovaná, deklarácia nesmie obsahovat priradenie
 do premennej.
+
+Funkcie
+-------------
+
+Zápis funkcie:
+`def <typ návratovej hodnoty> <názov>(<typ> <názov argumentu>, ...) {
+  return <návratová hodnota>;
+}`

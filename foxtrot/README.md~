@@ -16,9 +16,8 @@ Deklarácia:
 `var <typ> <názov premennej>;`
 
 Príklady:
-`var int i;`
-
-`var string s;`
+* `var int i;`
+* `var string s;`
 
 Každá premenná musí byť pred použítím deklarovaná, deklarácia nesmie obsahovat priradenie
 do premennej.
