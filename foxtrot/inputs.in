@@ -1,0 +1,3 @@
+primes test/primes.fox
+graph test/graph.fox
+sort test/sort.fox

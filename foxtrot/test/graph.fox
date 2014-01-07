@@ -1,0 +1,64 @@
+def int findset(int[1] arr, int i) {
+  var int j;
+  j = i;
+
+  while (arr[j] != j) {
+    j = arr[j];
+  }
+
+  while (arr[i] != j) {
+    arr[i] = j;
+    i = arr[i];
+  }
+
+  return j;
+}
+
+def int union(int[1] arr, int i, int j) {
+  var int k;
+  k = findset(arr, i);
+  arr[k] = findset(arr, j);
+
+  return arr[k];
+}
+
+var int n;
+var int m;
+var int i;
+var int j;
+var int k;
+
+n = readInt();
+m = readInt();
+i = 0;
+
+var int[n] set;
+
+while (i < n) {
+  set[i] = i;
+  i = i + 1;
+}
+
+i = 0;
+
+while (i < m) {
+  j = readInt();
+  k = readInt();
+
+  union(set, j, k); 
+  i = i + 1; 
+}
+
+i = 1;
+
+while (i < n) {
+  if (findset(set, i - 1) != findset(set, i)) {
+    print("NO");
+    newline();
+    exit();
+  }
+  i = i + 1;
+}
+
+print("YES");
+newline();
