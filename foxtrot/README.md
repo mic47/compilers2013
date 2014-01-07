@@ -65,14 +65,14 @@ Cykly a riadenie toku
 
 Podporovaný je len štandardný while cyklus. Zápis:
 ```
-while(<podmienka>) {
+while (<podmienka>) {
   # telo cyklu
 }
 ```
 
 Riadenie toku umožňuje konštrukt if, zápis:
 ```
-if(<podmienka>) {
+if (<podmienka>) {
   # ak je podmienka pravdivá, riadenie pokračuje tu
 }
 else {
@@ -88,4 +88,9 @@ Operátory
 * `&&, ||`
 * `==, <, >, <=, >=, !=`
 * `=`
+
+Komentáre
+-------------
+
+Momentálne nie sú podporované.
 
