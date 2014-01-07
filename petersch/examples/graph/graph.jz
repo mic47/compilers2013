@@ -1,0 +1,48 @@
+int findset(int[] pole, int i) {
+    int iset = i
+    while pole[iset] != iset {
+        iset = pole[iset]
+    }
+    while pole[i] != iset {
+        pole[i] = iset
+        i = pole[i]
+    }
+    return iset
+}
+
+int union(int[] pole, int i, int j) {
+    int iset = findset(pole, i)
+    pole[iset] = findset(pole, j)
+    return pole[iset]
+}
+
+void main() {
+    int n, m
+    read n, m
+
+    int sets[n]
+    for i in 0...n {
+        sets[i] = i
+    }
+
+    for i in 0...m {
+        int u, v
+        read u, v
+        union(sets, u, v)
+    }
+
+    int connected = 1
+    for i in 1...n {
+        unless findset(sets, i-1) == findset(sets, i) {
+            connected = 0
+        }
+    }
+
+    if connected {
+        write "YES"
+    }
+    else {
+        write "NO"
+    }
+}
+
