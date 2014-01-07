@@ -1,0 +1,22 @@
+bin
+tmp/*
+!.gitkeep
+*.iml
+*.so
+*.ll
+
+# Eclipse files
+.project
+.buildpath
+.settings
+.classpath
+.metadata
+RemoteSystemsTempFiles
+src/#*
+
+# vim temporary files
+*.swp
+*.swo
+
+# ignore all generated files
+src/kuboj*

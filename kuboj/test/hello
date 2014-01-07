@@ -1,0 +1,4 @@
+function int main() {
+  writestr("Hello World!\n");
+  return 0;
+}

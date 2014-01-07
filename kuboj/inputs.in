@@ -1,0 +1,5 @@
+add test/add
+graph test/graph
+primes test/primes
+sort test/sort
+hello test/hello

@@ -1,0 +1,76 @@
+function int[] bfs(int v, int[] g, int length, int[] visited) {
+  var int[] retval;
+
+  if (visited[v] == 1) {
+    retval = visited;
+  } else {
+    visited[v] = 1;
+
+    var int i;
+    i = 0;
+    var int j;
+    j = 0;
+    for (i < length; i = i + 1) {
+      for (j < length; j = j + 1) {
+        if (g[(v * length) + j] == 1) {        
+          visited = bfs(j, g, length, visited);
+        }
+      }
+    }
+    retval = visited;
+  }
+
+  return retval;
+}
+
+function int main() {
+  var int n;
+  n = readint();
+  var int m;
+  m = readint();
+  var int[] g;
+  g = mallocint(n * n);
+
+  var int j;
+  var int k;
+  var int i;
+
+  i = 0;
+  for (i < n * n; i = i + 1) {
+    g[i] = 0;
+  }
+
+  i = 0;
+  for (i < m; i = i + 1) {
+    j = readint();
+    k = readint();
+    g[(j * n) + k] = 1;
+    g[(k * n) + j] = 1;
+  }
+
+  var int[] visited;
+  visited = mallocint(n);
+  i = 0;
+  for (i < n; i = i + 1) {
+    visited[i] = 0;
+  }
+
+  var int[] visited2;
+  visited2 = bfs(0, g, n, visited);
+
+  var int visited_all;
+  visited_all = 1;
+  i = 0;
+  for (i < n; i = i + 1) {
+    if (visited2[i] == 0) {
+      visited_all = 0;
+    }
+  }
+
+  if (visited_all == 1) {
+    writestrnl("YES");
+  } else {
+    writestrnl("NO");
+  }
+  return 0;
+}
